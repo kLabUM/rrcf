@@ -1,6 +1,6 @@
 import numpy as np
 
-class Tree:
+class RCTree:
     def __init__(self, X, root=None):
         self.leaves = {}
         self.root = root
@@ -40,6 +40,36 @@ class Tree:
             branch.r = leaf
             self.leaves[i] = leaf
         depth -= 1
+
+    def delete_leaf(self, i):
+        node = self.leaves.pop(i)
+        parent = node.u
+        grandparent = parent.u
+        if node is parent.l:
+            sibling = parent.r
+        else:
+            sibling = parent.l
+        sibling.u = grandparent
+        if parent is grandparent.l:
+            grandparent.l = sibling
+        else:
+            grandparent.r = sibling
+        # Update depths
+        self.traverse(grandparent, op=self._increment_depth, inc=-1)
+        del node
+        del parent
+
+    def traverse(self, node, op=(lambda x: None), *args, **kwargs):
+        if isinstance(node, Branch):
+            if node.l:
+                self.traverse(node.l, op=op, *args, **kwargs)
+            if node.r:
+                self.traverse(node.r, op=op, *args, **kwargs)
+        else:
+            op(node, *args, **kwargs)
+
+    def _increment_depth(self, x, inc=1):
+        x.d += (inc)
 
 class Branch:
     __slots__ = ['q', 'p', 'l', 'r', 'u']
