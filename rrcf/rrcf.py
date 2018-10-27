@@ -1,6 +1,13 @@
 import numpy as np
 
 class RCTree:
+    """
+    Robust random cut tree data structure.
+
+    Example usage:
+    X = np.random.randn(100,2)
+    tree = RCTree(X)
+    """
     def __init__(self, X, root=None):
         self.leaves = {}
         self.root = root
