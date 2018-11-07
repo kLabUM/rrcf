@@ -18,6 +18,7 @@ class RCTree:
         self.leaves = {}
         # Initialize tree root
         self.root = root
+        # Set node above to None in case of bottom-up search
         self.u = None
         # Create RRC Tree
         S = np.ones(X.shape[0], dtype=np.bool)
@@ -102,7 +103,14 @@ class RCTree:
         del parent
 
     def traverse(self, node, op=(lambda x: None), *args, **kwargs):
-        # Traverse tree recursively, calling operation given by op on leaves
+        '''
+        Traverse tree recursively, calling operation given by op on leaves
+
+        node: node in RCTree
+        op: function to call on each leaf
+        *args: positional arguments to op
+        **kwargs: keyword arguments to op
+        '''
         if isinstance(node, Branch):
             if node.l:
                 self.traverse(node.l, op=op, *args, **kwargs)
@@ -110,6 +118,26 @@ class RCTree:
                 self.traverse(node.r, op=op, *args, **kwargs)
         else:
             op(node, *args, **kwargs)
+
+    def query(self, point, node=None):
+        '''
+        Search for leaf nearest to point
+
+        point: point to search for
+        node: node in RCTree
+        '''
+        if node is None:
+            node = self.root
+        return self._query(point, node)
+
+    def _query(self, point, node):
+        if isinstance(node, Leaf):
+            return node
+        else:
+            if point[node.q] <= node.p:
+                return self._query(point, node.l)
+            else:
+                return self._query(point, node.r)
 
     def _increment_depth(self, x, inc=1):
         x.d += (inc)
