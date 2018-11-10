@@ -20,6 +20,8 @@ class RCTree:
         self.root = root
         # Set node above to None in case of bottom-up search
         self.u = None
+        # Store bbox of points
+        self._bbox = np.column_stack([X.min(axis=0), X.max(axis=0)])
         # Create RRC Tree
         S = np.ones(X.shape[0], dtype=np.bool)
         self._mktree(X, S, parent=self)
@@ -78,9 +80,9 @@ class RCTree:
         # Decrement depth as we traverse back up
         depth -= 1
 
-    def delete_leaf(self, i):
+    def delete_leaf(self, x):
         # Pop pointer to leaf out of leaves dict
-        node = self.leaves.pop(i)
+        node = self.leaves.pop(x)
         # Find parent and grandparent
         parent = node.u
         grandparent = parent.u
@@ -129,6 +131,26 @@ class RCTree:
         if node is None:
             node = self.root
         return self._query(point, node)
+
+    def disp(self, x):
+        '''
+        Compute displacement at leaf x
+
+        x: index of point
+        '''
+        # Get node and parent
+        node = self.leaves[x]
+        parent = node.u
+        # Find sibling
+        if node is parent.l:
+            sibling = parent.r
+        else:
+            sibling = parent.l
+        # Count number of nodes in sibling subtree
+        displacement = np.array(0, dtype=np.int64)
+        self.traverse(sibling, op=self._accumulate, accumulator=displacement)
+        displacement = np.asscalar(displacement)
+        return displacement
 
     def _query(self, point, node):
         if isinstance(node, Leaf):
