@@ -25,24 +25,34 @@ class RCTree:
         # Create RRC Tree
         S = np.ones(X.shape[0], dtype=np.bool)
         self._mktree(X, S, parent=self)
+        # Dimention of the data point 
+        self.dimention = X.shape[1]
 
     def _cut(self, X, S, parent=None, side='l'):
         # Find max and min over all d dimensions
         xmax = X[S].max(axis=0)
         xmin = X[S].min(axis=0)
+
         # Compute l
         l = xmax - xmin
+        # Estimate the probability 
         l /= l.sum()
+
         # Determine dimension to cut
-        q = np.random.choice(2, p=l)
+        q = np.random.choice(self.dimention, p=l)
+
         # Determine value for split
         p = np.random.uniform(xmin[q], xmax[q])
+
         # Determine subset of points to left
         S1 = (X[:,q] <= p) & (S)
+
         # Determine subset of points to right
         S2 = (~S1) & (S)
+
         # Create new child node
         child = Branch(q=q, p=p, u=parent)
+
         # Link child node to parent
         if parent is not None:
             setattr(parent, side, child)
@@ -153,6 +163,7 @@ class RCTree:
         return displacement
 
     def _query(self, point, node):
+        # Recursive loop 
         if isinstance(node, Leaf):
             return node
         else:
@@ -168,6 +179,13 @@ class RCTree:
         accumulator += 1
 
 class Branch:
+    """
+    q : dimention to split 
+    p : value of split in q dimention 
+    l : nodes on the left 
+    r : nodes on the right 
+    u : indicator to the parenet node 
+    """
     __slots__ = ['q', 'p', 'l', 'r', 'u']
     def __init__(self, q, p, l=None, r=None, u=None):
         self.l = l
@@ -177,6 +195,11 @@ class Branch:
         self.p = p
 
 class Leaf:
+    """
+    i : ID number based on the index of the X
+    d : Depth of the leaf
+    u : Pointer to the parent. 
+    """
     __slots__ = ['i', 'd', 'u']
     def __init__(self, i, d=None, u=None):
         self.u = u
