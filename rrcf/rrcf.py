@@ -25,6 +25,8 @@ class RCTree:
         # Create RRC Tree
         S = np.ones(X.shape[0], dtype=np.bool)
         self._mktree(X, S, parent=self)
+        # Remove parent of root
+        self.root.u = None
 
     def _cut(self, X, S, parent=None, side='l'):
         # Find max and min over all d dimensions
@@ -151,6 +153,31 @@ class RCTree:
         self.traverse(sibling, op=self._accumulate, accumulator=displacement)
         displacement = np.asscalar(displacement)
         return displacement
+
+    def codisp(self, x):
+        '''
+        Compute collusive displacement at leaf x
+
+        x: index of point
+        '''
+        node = self.leaves[x]
+        results = []
+        displacement = np.array(0, dtype=np.int64)
+        num_deleted  = np.array(0, dtype=np.int64)
+        for _ in range(node.d):
+            parent = node.u
+            if parent is None:
+                break
+            if node is parent.l:
+                sibling = parent.r
+            else:
+                sibling = parent.l
+            self.traverse(node, op=self._accumulate, accumulator=num_deleted)
+            self.traverse(sibling, op=self._accumulate, accumulator=displacement)
+            result = np.asscalar(displacement / num_deleted)
+            results.append(result)
+            node = parent
+        return max(results)
 
     def _query(self, point, node):
         if isinstance(node, Leaf):
