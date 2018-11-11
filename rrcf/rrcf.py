@@ -18,6 +18,8 @@ class RCTree:
         self.leaves = {}
         # Initialize tree root
         self.root = root
+        # Store dimension of dataset
+        self.ndim = X.shape[1]
         # Set node above to None in case of bottom-up search
         self.u = None
         # Store bbox of points
@@ -36,7 +38,7 @@ class RCTree:
         l = xmax - xmin
         l /= l.sum()
         # Determine dimension to cut
-        q = np.random.choice(2, p=l)
+        q = np.random.choice(self.ndim, p=l)
         # Determine value for split
         p = np.random.uniform(xmin[q], xmax[q])
         # Determine subset of points to left
