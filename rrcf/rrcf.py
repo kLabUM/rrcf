@@ -264,6 +264,9 @@ class RCTree:
     def _accumulate(self, x, accumulator):
         accumulator += 1
 
+    def _get_leaves(self, x, stack):
+        stack.append(x.i)
+
 class Branch:
     __slots__ = ['q', 'p', 'l', 'r', 'u', 'n']
     def __init__(self, q, p, l=None, r=None, u=None, n=0):
