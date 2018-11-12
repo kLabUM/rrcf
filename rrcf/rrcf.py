@@ -29,6 +29,8 @@ class RCTree:
         self._mktree(X, S, parent=self)
         # Remove parent of root
         self.root.u = None
+        # Count all leaves under each branch
+        self._count_all_top_down(self.root)
 
     def _cut(self, X, S, parent=None, side='l'):
         # Find max and min over all d dimensions
@@ -125,6 +127,22 @@ class RCTree:
         else:
             op(node, *args, **kwargs)
 
+    def _count_all_top_down(self, node):
+        '''
+        Traverse tree recursively, calling operation given by op on leaves
+
+        node: node in RCTree
+        op: function to call on each branch
+        *args: positional arguments to op
+        **kwargs: keyword arguments to op
+        '''
+        if isinstance(node, Branch):
+            if node.l:
+                self._count_all_top_down(node.l)
+            if node.r:
+                self._count_all_top_down(node.r)
+            node.n = node.l.n + node.r.n
+
     def query(self, point, node=None):
         '''
         Search for leaf nearest to point
@@ -135,6 +153,12 @@ class RCTree:
         if node is None:
             node = self.root
         return self._query(point, node)
+
+    def _count_leaves(self, node):
+        num_leaves = np.array(0, dtype=np.int64)
+        self.traverse(node, op=self._accumulate, accumulator=num_leaves)
+        num_leaves = np.asscalar(num_leaves)
+        return num_leaves
 
     def disp(self, x):
         '''
@@ -181,6 +205,50 @@ class RCTree:
             node = parent
         return max(results)
 
+    def disp_all(self):
+        '''
+        Compute displacement at every leaf
+        '''
+        # Get node and parent
+        results = {}
+        for index, leaf in self.leaves.items():
+            node = leaf
+            parent = node.u
+            # Find sibling
+            if node is parent.l:
+                sibling = parent.r
+            else:
+                sibling = parent.l
+            # Count number of nodes in sibling subtree
+            results[index] = sibling.n
+        return results
+
+    def codisp_all(self):
+        '''
+        Compute collusive displacement at every leaf
+
+        x: index of point
+        '''
+        results = {}
+        for index, leaf in self.leaves.items():
+            node = leaf
+            leaf_results = []
+            for _ in range(node.d):
+                parent = node.u
+                if parent is None:
+                    break
+                if node is parent.l:
+                    sibling = parent.r
+                else:
+                    sibling = parent.l
+                num_deleted = node.n
+                displacement = sibling.n
+                result = (displacement / num_deleted)
+                leaf_results.append(result)
+                node = parent
+            results[index] = max(leaf_results)
+        return results
+
     def _query(self, point, node):
         if isinstance(node, Leaf):
             return node
@@ -197,18 +265,20 @@ class RCTree:
         accumulator += 1
 
 class Branch:
-    __slots__ = ['q', 'p', 'l', 'r', 'u']
-    def __init__(self, q, p, l=None, r=None, u=None):
+    __slots__ = ['q', 'p', 'l', 'r', 'u', 'n']
+    def __init__(self, q, p, l=None, r=None, u=None, n=0):
         self.l = l
         self.r = r
         self.u = u
         self.q = q
         self.p = p
+        self.n = n
 
 class Leaf:
-    __slots__ = ['i', 'd', 'u']
-    def __init__(self, i, d=None, u=None):
+    __slots__ = ['i', 'd', 'u', 'n']
+    def __init__(self, i, d=None, u=None, n=1):
         self.u = u
         self.i = i
         self.d = d
+        self.n = n
 
