@@ -84,6 +84,23 @@ class RCTree:
         # Decrement depth as we traverse back up
         depth -= 1
 
+    def traverse(self, node, op=(lambda x: None), *args, **kwargs):
+        '''
+        Traverse tree recursively, calling operation given by op on leaves
+
+        node: node in RCTree
+        op: function to call on each leaf
+        *args: positional arguments to op
+        **kwargs: keyword arguments to op
+        '''
+        if isinstance(node, Branch):
+            if node.l:
+                self.traverse(node.l, op=op, *args, **kwargs)
+            if node.r:
+                self.traverse(node.r, op=op, *args, **kwargs)
+        else:
+            op(node, *args, **kwargs)
+
     def forget_point(self, x):
         # Pop pointer to leaf out of leaves dict
         leaf = self.leaves.pop(x)
@@ -114,38 +131,56 @@ class RCTree:
             else:
                 break
 
-    def traverse(self, node, op=(lambda x: None), *args, **kwargs):
-        '''
-        Traverse tree recursively, calling operation given by op on leaves
-
-        node: node in RCTree
-        op: function to call on each leaf
-        *args: positional arguments to op
-        **kwargs: keyword arguments to op
-        '''
-        if isinstance(node, Branch):
-            if node.l:
-                self.traverse(node.l, op=op, *args, **kwargs)
-            if node.r:
-                self.traverse(node.r, op=op, *args, **kwargs)
-        else:
-            op(node, *args, **kwargs)
-
-    def _count_all_top_down(self, node):
-        '''
-        Traverse tree recursively, calling operation given by op on leaves
-
-        node: node in RCTree
-        op: function to call on each branch
-        *args: positional arguments to op
-        **kwargs: keyword arguments to op
-        '''
-        if isinstance(node, Branch):
-            if node.l:
-                self._count_all_top_down(node.l)
-            if node.r:
-                self._count_all_top_down(node.r)
-            node.n = node.l.n + node.r.n
+    def insert_point(self, point, i=None):
+        node = self.root
+        parent = node.u
+        maxdepth = max([leaf.d for leaf in self.leaves.values()])
+        depth = 0
+        # TODO: Check correctness of maxdepth
+        for _ in range(maxdepth):
+            bbox = self.get_bbox(node)
+            cut_dimension, cut = self._insert_point_cut(point, bbox)
+            # TODO: Should this be >= or >?
+            if (cut <= bbox[0, cut_dimension]):
+                leaf = Leaf(x=point, i=i, d=depth)
+                branch = Branch(q=cut_dimension, p=cut, l=leaf, r=node,
+                                n=(leaf.n + node.n))
+                break
+            elif (cut >= bbox[1, cut_dimension]):
+                leaf = Leaf(x=point, i=i, d=depth)
+                branch = Branch(q=cut_dimension, p=cut, l=node, r=leaf,
+                                n=(leaf.n + node.n))
+                break
+            else:
+                depth += 1
+                if point[:, node.q] <= node.p:
+                    parent = node
+                    node = node.l
+                    side = 'l'
+                else:
+                    parent = node
+                    node = node.r
+                    side = 'r'
+        # Set parent of new branch and leaf
+        node.u = branch
+        leaf.u = branch
+        branch.u = parent
+        # Set child of parent to new branch
+        setattr(parent, side, branch)
+        # Increment depths below branch
+        self.traverse(branch, op=self._increment_depth, inc=1)
+        # Increment leaf count above branch
+        # TODO: Check correctness
+        for _ in range(leaf.d):
+            if parent:
+                parent.n += 1
+                parent = parent.u
+            else:
+                break
+        # Add leaf to leaves dict
+        self.leaves[i] = leaf
+        # Return inserted leaf for convenience
+        return leaf
 
     def query(self, point, node=None):
         '''
@@ -157,12 +192,6 @@ class RCTree:
         if node is None:
             node = self.root
         return self._query(point, node)
-
-    def _count_leaves(self, node):
-        num_leaves = np.array(0, dtype=np.int64)
-        self.traverse(node, op=self._accumulate, accumulator=num_leaves)
-        num_leaves = np.asscalar(num_leaves)
-        return num_leaves
 
     def disp(self, leaf):
         '''
@@ -223,6 +252,28 @@ class RCTree:
         bbox = np.vstack([mins, maxes])
         return bbox
 
+    def _count_all_top_down(self, node):
+        '''
+        Traverse tree recursively, calling operation given by op on leaves
+
+        node: node in RCTree
+        op: function to call on each branch
+        *args: positional arguments to op
+        **kwargs: keyword arguments to op
+        '''
+        if isinstance(node, Branch):
+            if node.l:
+                self._count_all_top_down(node.l)
+            if node.r:
+                self._count_all_top_down(node.r)
+            node.n = node.l.n + node.r.n
+
+    def _count_leaves(self, node):
+        num_leaves = np.array(0, dtype=np.int64)
+        self.traverse(node, op=self._accumulate, accumulator=num_leaves)
+        num_leaves = np.asscalar(num_leaves)
+        return num_leaves
+
     def _query(self, point, node):
         if isinstance(node, Leaf):
             return node
@@ -246,57 +297,6 @@ class RCTree:
         gt = (x.x > maxes)
         mins[lt] = x.x[lt]
         maxes[gt] = x.x[gt]
-
-    def insert_point(self, point, i=None):
-        node = self.root
-        parent = node.u
-        maxdepth = max([leaf.d for leaf in self.leaves.values()])
-        depth = 0
-        # TODO: Check correctness of maxdepth
-        for _ in range(maxdepth):
-            bbox = self.get_bbox(node)
-            cut_dimension, cut = self._insert_point_cut(point, bbox)
-            # TODO: Should this be >= or >?
-            if (cut <= bbox[0, cut_dimension]):
-                leaf = Leaf(x=point, i=i, d=depth)
-                branch = Branch(q=cut_dimension, p=cut, l=leaf, r=node,
-                                n=(leaf.n + node.n))
-                break
-            elif (cut >= bbox[1, cut_dimension]):
-                leaf = Leaf(x=point, i=i, d=depth)
-                branch = Branch(q=cut_dimension, p=cut, l=node, r=leaf,
-                                n=(leaf.n + node.n))
-                break
-            else:
-                depth += 1
-                if point[:, node.q] <= node.p:
-                    parent = node
-                    node = node.l
-                    side = 'l'
-                else:
-                    parent = node
-                    node = node.r
-                    side = 'r'
-        # Set parent of new branch and leaf
-        node.u = branch
-        leaf.u = branch
-        branch.u = parent
-        # Set child of parent to new branch
-        setattr(parent, side, branch)
-        # Increment depths below branch
-        self.traverse(branch, op=self._increment_depth, inc=1)
-        # Increment leaf count above branch
-        # TODO: Check correctness
-        for _ in range(leaf.d):
-            if parent:
-                parent.n += 1
-                parent = parent.u
-            else:
-                break
-        # Add leaf to leaves dict
-        self.leaves[i] = leaf
-        # Return inserted leaf for convenience
-        return leaf
 
     def _insert_point_cut(self, point, bbox):
         """
