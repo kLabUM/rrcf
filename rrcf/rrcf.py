@@ -105,6 +105,7 @@ class RCTree:
         # Update depths
         parent = grandparent
         self.traverse(parent, op=self._increment_depth, inc=-1)
+        # Update leaf counts under each branch
         # TODO: Check correctness
         for _ in range(leaf.d):
             if parent:
@@ -112,7 +113,6 @@ class RCTree:
                 parent = parent.u
             else:
                 break
-
 
     def traverse(self, node, op=(lambda x: None), *args, **kwargs):
         '''
@@ -164,36 +164,40 @@ class RCTree:
         num_leaves = np.asscalar(num_leaves)
         return num_leaves
 
-    def disp(self, x):
+    def disp(self, leaf):
         '''
-        Compute displacement at leaf x
+        Compute displacement at leaf
 
-        x: index of point
+        leaf: index of point
         '''
-        # Get node and parent
-        node = self.leaves[x]
-        parent = node.u
+        if not isinstance(leaf, Leaf):
+            try:
+                leaf = self.leaves[leaf]
+            except:
+                raise KeyError('leaf must be a Leaf instance or key to self.leaves')
+        parent = leaf.u
         # Find sibling
-        if node is parent.l:
+        if leaf is parent.l:
             sibling = parent.r
         else:
             sibling = parent.l
         # Count number of nodes in sibling subtree
-        displacement = np.array(0, dtype=np.int64)
-        self.traverse(sibling, op=self._accumulate, accumulator=displacement)
-        displacement = np.asscalar(displacement)
+        displacement = sibling.n
         return displacement
 
-    def codisp(self, x):
+    def codisp(self, leaf):
         '''
-        Compute collusive displacement at leaf x
+        Compute collusive displacement at leaf
 
-        x: index of point
+        leaf: index of point
         '''
-        node = self.leaves[x]
+        if not isinstance(leaf, Leaf):
+            try:
+                leaf = self.leaves[leaf]
+            except:
+                raise KeyError('leaf must be a Leaf instance or key to self.leaves')
+        node = leaf
         results = []
-        displacement = np.array(0, dtype=np.int64)
-        num_deleted  = np.array(0, dtype=np.int64)
         for _ in range(node.d):
             parent = node.u
             if parent is None:
@@ -202,56 +206,13 @@ class RCTree:
                 sibling = parent.r
             else:
                 sibling = parent.l
-            self.traverse(node, op=self._accumulate, accumulator=num_deleted)
-            self.traverse(sibling, op=self._accumulate, accumulator=displacement)
-            result = np.asscalar(displacement / num_deleted)
+            num_deleted = node.n
+            displacement = sibling.n
+            result = (displacement / num_deleted)
             results.append(result)
             node = parent
-        return max(results)
-
-    def disp_all(self):
-        '''
-        Compute displacement at every leaf
-        '''
-        # Get node and parent
-        results = {}
-        for index, leaf in self.leaves.items():
-            node = leaf
-            parent = node.u
-            # Find sibling
-            if node is parent.l:
-                sibling = parent.r
-            else:
-                sibling = parent.l
-            # Count number of nodes in sibling subtree
-            results[index] = sibling.n
-        return results
-
-    def codisp_all(self):
-        '''
-        Compute collusive displacement at every leaf
-
-        x: index of point
-        '''
-        results = {}
-        for index, leaf in self.leaves.items():
-            node = leaf
-            leaf_results = []
-            for _ in range(node.d):
-                parent = node.u
-                if parent is None:
-                    break
-                if node is parent.l:
-                    sibling = parent.r
-                else:
-                    sibling = parent.l
-                num_deleted = node.n
-                displacement = sibling.n
-                result = (displacement / num_deleted)
-                leaf_results.append(result)
-                node = parent
-            results[index] = max(leaf_results)
-        return results
+        co_displacement = max(results)
+        return co_displacement
 
     def get_bbox(self, node=None):
         if node is None:
