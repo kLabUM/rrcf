@@ -266,7 +266,7 @@ class RCTree:
         if isinstance(node, Leaf):
             return node
         else:
-            if point[node.q] <= node.p:
+            if point[:, node.q] <= node.p:
                 return self._query(point, node.l)
             else:
                 return self._query(point, node.r)
@@ -308,7 +308,7 @@ class RCTree:
                 break
             else:
                 depth += 1
-                if point[node.q] <= node.p:
+                if point[:, node.q] <= node.p:
                     parent = node
                     node = node.l
                     side = 'l'
