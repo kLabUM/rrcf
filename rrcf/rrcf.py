@@ -22,8 +22,6 @@ class RCTree:
         self.ndim = X.shape[1]
         # Set node above to None in case of bottom-up search
         self.u = None
-        # Store bbox of points
-        self._bbox = np.column_stack([X.min(axis=0), X.max(axis=0)])
         # Create RRC Tree
         S = np.ones(X.shape[0], dtype=np.bool)
         self._mktree(X, S, parent=self)
@@ -67,7 +65,7 @@ class RCTree:
         else:
             # Create a leaf node from isolated point
             i = np.asscalar(np.flatnonzero(S1))
-            leaf = Leaf(i=i, d=depth, u=branch)
+            leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :])
             # Link leaf node to parent
             branch.l = leaf
             self.leaves[i] = leaf
@@ -79,21 +77,21 @@ class RCTree:
         else:
             # Create a leaf node from isolated point
             i = np.asscalar(np.flatnonzero(S2))
-            leaf = Leaf(i=i, d=depth, u=branch)
+            leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :])
             # Link leaf node to parent
             branch.r = leaf
             self.leaves[i] = leaf
         # Decrement depth as we traverse back up
         depth -= 1
 
-    def delete_leaf(self, x):
+    def forget_point(self, x):
         # Pop pointer to leaf out of leaves dict
-        node = self.leaves.pop(x)
+        leaf = self.leaves.pop(x)
         # Find parent and grandparent
-        parent = node.u
+        parent = leaf.u
         grandparent = parent.u
         # Find sibling
-        if node is parent.l:
+        if leaf is parent.l:
             sibling = parent.r
         else:
             sibling = parent.l
@@ -105,10 +103,16 @@ class RCTree:
         else:
             grandparent.r = sibling
         # Update depths
-        self.traverse(grandparent, op=self._increment_depth, inc=-1)
-        # Collect garbage
-        del node
-        del parent
+        parent = grandparent
+        self.traverse(parent, op=self._increment_depth, inc=-1)
+        # TODO: Check correctness
+        for _ in range(leaf.d):
+            if parent:
+                parent.n -= 1
+                parent = parent.u
+            else:
+                break
+
 
     def traverse(self, node, op=(lambda x: None), *args, **kwargs):
         '''
@@ -249,6 +253,15 @@ class RCTree:
             results[index] = max(leaf_results)
         return results
 
+    def get_bbox(self, node=None):
+        if node is None:
+            node = self.root
+        mins = np.full(self.ndim, np.inf)
+        maxes = np.full(self.ndim, -np.inf)
+        self.traverse(node, op=self._get_bbox, mins=mins, maxes=maxes)
+        bbox = np.vstack([mins, maxes])
+        return bbox
+
     def _query(self, point, node):
         if isinstance(node, Leaf):
             return node
@@ -267,6 +280,98 @@ class RCTree:
     def _get_leaves(self, x, stack):
         stack.append(x.i)
 
+    def _get_bbox(self, x, mins, maxes):
+        lt = (x.x < mins)
+        gt = (x.x > maxes)
+        mins[lt] = x.x[lt]
+        maxes[gt] = x.x[gt]
+
+    def insert_point(self, point, i=None):
+        node = self.root
+        parent = node.u
+        maxdepth = max([leaf.d for leaf in self.leaves.values()])
+        depth = 0
+        # TODO: Check correctness of maxdepth
+        for _ in range(maxdepth):
+            bbox = self.get_bbox(node)
+            cut_dimension, cut = self._insert_point_cut(point, bbox)
+            # TODO: Should this be >= or >?
+            if (cut <= bbox[0, cut_dimension]):
+                leaf = Leaf(x=point, i=i, d=depth)
+                branch = Branch(q=cut_dimension, p=cut, l=leaf, r=node,
+                                n=(leaf.n + node.n))
+                break
+            elif (cut >= bbox[1, cut_dimension]):
+                leaf = Leaf(x=point, i=i, d=depth)
+                branch = Branch(q=cut_dimension, p=cut, l=node, r=leaf,
+                                n=(leaf.n + node.n))
+                break
+            else:
+                depth += 1
+                if point[node.q] <= node.p:
+                    parent = node
+                    node = node.l
+                    side = 'l'
+                else:
+                    parent = node
+                    node = node.r
+                    side = 'r'
+        # Set parent of new branch and leaf
+        node.u = branch
+        leaf.u = branch
+        branch.u = parent
+        # Set child of parent to new branch
+        setattr(parent, side, branch)
+        # Increment depths below branch
+        self.traverse(branch, op=self._increment_depth, inc=1)
+        # Increment leaf count above branch
+        # TODO: Check correctness
+        for _ in range(leaf.d):
+            if parent:
+                parent.n += 1
+                parent = parent.u
+            else:
+                break
+        # Add leaf to leaves dict
+        self.leaves[i] = leaf
+        # Return inserted leaf for convenience
+        return leaf
+
+    def _insert_point_cut(self, point, bbox):
+        """
+        Generates the cut dimension and cut value
+        based on the InsertPoint algorithm
+        ----
+        Inputs:
+        S : Set of point to be split (numpy array (n x d))
+        p : New point to be inserted (numpy array (1 x d))
+
+        Returs:
+        dimenstion for cut, cut value
+        ----
+        Example:
+        InsertPoint_cut(x_inital, x_new)
+        (0, 0.9758881798109296)
+        """
+        # Generate the bounding box
+        bbox_hat = np.empty(bbox.shape)
+        # Update the bounding box based on the internal point
+        bbox_hat[0, :] = np.minimum(bbox[0, :], point)
+        bbox_hat[1, :] = np.maximum(bbox[1, :], point)
+        b_span = bbox_hat[1, :] - bbox_hat[0, :]
+        b_range = b_span.sum()
+        r = np.random.uniform(0, b_range)
+        span_sum = np.cumsum(b_span)
+        cut_dimension = np.inf
+        for j in range(len(span_sum)):
+            if span_sum[j] >= r:
+                cut_dimension = j
+                break
+        if not np.isfinite(cut_dimension):
+            raise ValueError("Cut dimension is not finite.")
+        cut = bbox_hat[0, cut_dimension] + span_sum[cut_dimension] - r
+        return cut_dimension, cut
+
 class Branch:
     __slots__ = ['q', 'p', 'l', 'r', 'u', 'n']
     def __init__(self, q, p, l=None, r=None, u=None, n=0):
@@ -278,10 +383,11 @@ class Branch:
         self.n = n
 
 class Leaf:
-    __slots__ = ['i', 'd', 'u', 'n']
-    def __init__(self, i, d=None, u=None, n=1):
+    __slots__ = ['i', 'd', 'u', 'x', 'n']
+    def __init__(self, i, d=None, u=None, x=None, n=1):
         self.u = u
         self.i = i
         self.d = d
+        self.x = x
         self.n = n
 
