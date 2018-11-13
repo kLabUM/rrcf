@@ -18,22 +18,23 @@ class RCTree:
     root: Pointer to root of tree
     leaves: Dict containing pointers to all leaves in tree
     """
-    def __init__(self, X, root=None):
+    def __init__(self, X=None):
         # Initialize dict for leaves
         self.leaves = {}
         # Initialize tree root
-        self.root = root
-        # Store dimension of dataset
-        self.ndim = X.shape[1]
-        # Set node above to None in case of bottom-up search
-        self.u = None
-        # Create RRC Tree
-        S = np.ones(X.shape[0], dtype=np.bool)
-        self._mktree(X, S, parent=self)
-        # Remove parent of root
-        self.root.u = None
-        # Count all leaves under each branch
-        self._count_all_top_down(self.root)
+        self.root = None
+        if X is not None:
+            # Store dimension of dataset
+            self.ndim = X.shape[1]
+            # Set node above to None in case of bottom-up search
+            self.u = None
+            # Create RRC Tree
+            S = np.ones(X.shape[0], dtype=np.bool)
+            self._mktree(X, S, parent=self)
+            # Remove parent of root
+            self.root.u = None
+            # Count all leaves under each branch
+            self._count_all_top_down(self.root)
 
     def _cut(self, X, S, parent=None, side='l'):
         # Find max and min over all d dimensions
@@ -108,7 +109,7 @@ class RCTree:
         else:
             op(node, *args, **kwargs)
 
-    def forget_point(self, leaf):
+    def forget_point(self, leaf, tolerance=None):
         """
         Delete leaf from tree
 
@@ -118,21 +119,42 @@ class RCTree:
         """
         if not isinstance(leaf, Leaf):
             try:
-                # Pop pointer to leaf out of leaves dict
-                leaf = self.leaves.pop(leaf)
+                # Get leaf from leaves dict
+                index = leaf
+                leaf = self.leaves[index]
             except:
                 raise KeyError('leaf must be a Leaf instance or key to self.leaves')
         else:
             index = leaf.i
-            self.leaves.pop(index)
-        # Find parent and grandparent
+        # If duplicate points exist...
+        if leaf.n > 1:
+            # Simply decrement the number of points in the leaf and upwards
+            self._update_leaf_count_upwards(leaf, inc=-1)
+            return leaf
+        # Weird cases here:
+        # If leaf is the root...
+        if leaf is self.root:
+            self.root = None
+            return self.leaves.pop(index)
+        # Find parent
         parent = leaf.u
-        grandparent = parent.u
         # Find sibling
         if leaf is parent.l:
             sibling = parent.r
         else:
             sibling = parent.l
+        # If parent is the root...
+        if parent is self.root:
+            # Delete parent
+            del parent
+            # Set sibling as new root
+            sibling.u = None
+            if isinstance(sibling, Leaf):
+                sibling.d = 0
+            self.root = sibling
+            return self.leaves.pop(index)
+        # Find grandparent
+        grandparent = parent.u
         # Set parent of sibling to grandparent
         sibling.u = grandparent
         # Short-circuit grandparent to sibling
@@ -144,15 +166,16 @@ class RCTree:
         parent = grandparent
         self.traverse(parent, op=self._increment_depth, inc=-1)
         # Update leaf counts under each branch
-        # TODO: Check correctness of leaf.d
-        for _ in range(leaf.d):
-            if parent:
-                parent.n -= 1
-                parent = parent.u
-            else:
-                break
+        self._update_leaf_count_upwards(parent, inc=-1)
+        return self.leaves.pop(index)
 
-    def insert_point(self, point, index=None):
+    def _update_leaf_count_upwards(self, node, inc=1):
+        # TODO: Should probably make this a loop
+        while node:
+            node.n += inc
+            node = node.u
+
+    def insert_point(self, point, index=None, tolerance=None):
         """
         Inserts a point into the tree, creating a new leaf
 
@@ -160,6 +183,7 @@ class RCTree:
         -----------
         point: np.ndarray (1 x d)
         index: identifier for new leaf in tree
+        tolerance: tolerance for determining duplicate points
 
         Returns:
         --------
@@ -167,6 +191,28 @@ class RCTree:
               New leaf in tree
         """
         point = point.ravel()
+        if self.root is None:
+            leaf = Leaf(x=point, i=index, d=0)
+            self.root = leaf
+            self.ndim = point.size
+            self.leaves[index] = leaf
+            return leaf
+        # If leaves already exist in tree, check dimensions of point
+        try:
+            assert(point.size == self.ndim)
+        except:
+            raise ValueError("Point must be same dimension as existing points in tree.")
+        # Check for existing index in leaves dict
+        try:
+            assert(not index in self.leaves)
+        except:
+            raise KeyError("Index already exists in leaves dict.")
+        # Check for duplicate points
+        duplicate = self.find_duplicate(point, tolerance=tolerance)
+        if duplicate:
+            duplicate.n += 1
+            return duplicate
+        # If tree has points and point is not a duplicate, continue with main algorithm...
         node = self.root
         parent = node.u
         maxdepth = max([leaf.d for leaf in self.leaves.values()])
@@ -204,16 +250,13 @@ class RCTree:
         if parent is not None:
             # Set child of parent to new branch
             setattr(parent, side, branch)
+        else:
+            # If a new root was created, assign the attribute
+            self.root = branch
         # Increment depths below branch
         self.traverse(branch, op=self._increment_depth, inc=1)
         # Increment leaf count above branch
-        # TODO: Check correctness
-        for _ in range(leaf.d):
-            if parent:
-                parent.n += 1
-                parent = parent.u
-            else:
-                break
+        self._update_leaf_count_upwards(parent, inc=1)
         # Add leaf to leaves dict
         self.leaves[index] = leaf
         # Return inserted leaf for convenience
@@ -320,6 +363,16 @@ class RCTree:
         self.traverse(branch, op=self._get_bbox, mins=mins, maxes=maxes)
         bbox = np.vstack([mins, maxes])
         return bbox
+
+    def find_duplicate(self, point, tolerance=None):
+        nearest = self.query(point)
+        if tolerance is None:
+            if (nearest.x == point).all():
+                return nearest
+        else:
+            if np.isclose(nearest.x, point, rtol=tolerance).all():
+                return nearest
+        return None
 
     def _count_all_top_down(self, node):
         if isinstance(node, Branch):
