@@ -8,6 +8,11 @@ class RCTree:
     X = np.random.randn(100,2)
     tree = RCTree(X)
 
+    Parameters:
+    -----------
+    X: np.ndarray (n x d)
+       Array containing n data points, each with dimension d.
+
     Attributes:
     -----------
     root: Pointer to root of tree
@@ -84,9 +89,43 @@ class RCTree:
         # Decrement depth as we traverse back up
         depth -= 1
 
-    def forget_point(self, x):
-        # Pop pointer to leaf out of leaves dict
-        leaf = self.leaves.pop(x)
+    def traverse(self, node, op=(lambda x: None), *args, **kwargs):
+        """
+        Traverse tree recursively, calling operation given by op on leaves
+
+        Parameters:
+        -----------
+        node: node in RCTree
+        op: function to call on each leaf
+        *args: positional arguments to op
+        **kwargs: keyword arguments to op
+        """
+        if isinstance(node, Branch):
+            if node.l:
+                self.traverse(node.l, op=op, *args, **kwargs)
+            if node.r:
+                self.traverse(node.r, op=op, *args, **kwargs)
+        else:
+            op(node, *args, **kwargs)
+
+    def forget_point(self, leaf):
+        """
+        Delete leaf from tree
+
+        Parameters:
+        -----------
+        leaf: index of leaf in tree or Leaf instance
+        """
+        if not isinstance(leaf, Leaf):
+            try:
+                # Pop pointer to leaf out of leaves dict
+                leaf = self.leaves.pop(leaf)
+            except:
+                raise KeyError('leaf must be a Leaf instance or key to self.leaves')
+        else:
+            # TODO: This is kind of bad
+            index = [k for (k, v) in self.items() if v is leaf][0]
+            self.leaves.pop(index)
         # Find parent and grandparent
         parent = leaf.u
         grandparent = parent.u
@@ -105,7 +144,8 @@ class RCTree:
         # Update depths
         parent = grandparent
         self.traverse(parent, op=self._increment_depth, inc=-1)
-        # TODO: Check correctness
+        # Update leaf counts under each branch
+        # TODO: Check correctness of leaf.d
         for _ in range(leaf.d):
             if parent:
                 parent.n -= 1
@@ -113,87 +153,137 @@ class RCTree:
             else:
                 break
 
+    def insert_point(self, point, index=None):
+        """
+        Inserts a point into the tree, creating a new leaf
 
-    def traverse(self, node, op=(lambda x: None), *args, **kwargs):
-        '''
-        Traverse tree recursively, calling operation given by op on leaves
+        Parameters:
+        -----------
+        point: np.ndarray (1 x d)
+        index: identifier for new leaf in tree
 
-        node: node in RCTree
-        op: function to call on each leaf
-        *args: positional arguments to op
-        **kwargs: keyword arguments to op
-        '''
-        if isinstance(node, Branch):
-            if node.l:
-                self.traverse(node.l, op=op, *args, **kwargs)
-            if node.r:
-                self.traverse(node.r, op=op, *args, **kwargs)
-        else:
-            op(node, *args, **kwargs)
-
-    def _count_all_top_down(self, node):
-        '''
-        Traverse tree recursively, calling operation given by op on leaves
-
-        node: node in RCTree
-        op: function to call on each branch
-        *args: positional arguments to op
-        **kwargs: keyword arguments to op
-        '''
-        if isinstance(node, Branch):
-            if node.l:
-                self._count_all_top_down(node.l)
-            if node.r:
-                self._count_all_top_down(node.r)
-            node.n = node.l.n + node.r.n
+        Returns:
+        --------
+        leaf: Leaf
+              New leaf in tree
+        """
+        point = point.ravel()
+        node = self.root
+        parent = node.u
+        maxdepth = max([leaf.d for leaf in self.leaves.values()])
+        depth = 0
+        # TODO: Check correctness of maxdepth + 1
+        for _ in range(maxdepth + 1):
+            bbox = self.get_bbox(node)
+            cut_dimension, cut = self._insert_point_cut(point, bbox)
+            # TODO: Should this be >= or >?
+            if (cut <= bbox[0, cut_dimension]):
+                leaf = Leaf(x=point, i=index, d=depth)
+                branch = Branch(q=cut_dimension, p=cut, l=leaf, r=node,
+                                n=(leaf.n + node.n))
+                break
+            elif (cut >= bbox[1, cut_dimension]):
+                leaf = Leaf(x=point, i=index, d=depth)
+                branch = Branch(q=cut_dimension, p=cut, l=node, r=leaf,
+                                n=(leaf.n + node.n))
+                break
+            else:
+                depth += 1
+                if point[node.q] <= node.p:
+                    parent = node
+                    node = node.l
+                    side = 'l'
+                else:
+                    parent = node
+                    node = node.r
+                    side = 'r'
+        # Set parent of new leaf and old branch
+        node.u = branch
+        leaf.u = branch
+        # Set parent of new branch
+        branch.u = parent
+        if parent is not None:
+            # Set child of parent to new branch
+            setattr(parent, side, branch)
+        # Increment depths below branch
+        self.traverse(branch, op=self._increment_depth, inc=1)
+        # Increment leaf count above branch
+        # TODO: Check correctness
+        for _ in range(leaf.d):
+            if parent:
+                parent.n += 1
+                parent = parent.u
+            else:
+                break
+        # Add leaf to leaves dict
+        self.leaves[index] = leaf
+        # Return inserted leaf for convenience
+        return leaf
 
     def query(self, point, node=None):
-        '''
+        """
         Search for leaf nearest to point
 
-        point: point to search for
-        node: node in RCTree
-        '''
+        Parameters:
+        -----------
+        point: np.ndarray (1 x d)
+               Point to search for
+        node: Branch instance
+              Defaults to root node
+        """
+        point = point.ravel()
         if node is None:
             node = self.root
         return self._query(point, node)
 
-    def _count_leaves(self, node):
-        num_leaves = np.array(0, dtype=np.int64)
-        self.traverse(node, op=self._accumulate, accumulator=num_leaves)
-        num_leaves = np.asscalar(num_leaves)
-        return num_leaves
+    def disp(self, leaf):
+        """
+        Compute displacement at leaf
 
-    def disp(self, x):
-        '''
-        Compute displacement at leaf x
+        Parameters:
+        -----------
+        leaf: index of leaf or Leaf instance
 
-        x: index of point
-        '''
-        # Get node and parent
-        node = self.leaves[x]
-        parent = node.u
+        Returns:
+        --------
+        displacement: int
+                      Displacement if leaf is removed.
+        """
+        if not isinstance(leaf, Leaf):
+            try:
+                leaf = self.leaves[leaf]
+            except:
+                raise KeyError('leaf must be a Leaf instance or key to self.leaves')
+        parent = leaf.u
         # Find sibling
-        if node is parent.l:
+        if leaf is parent.l:
             sibling = parent.r
         else:
             sibling = parent.l
         # Count number of nodes in sibling subtree
-        displacement = np.array(0, dtype=np.int64)
-        self.traverse(sibling, op=self._accumulate, accumulator=displacement)
-        displacement = np.asscalar(displacement)
+        displacement = sibling.n
         return displacement
 
-    def codisp(self, x):
-        '''
-        Compute collusive displacement at leaf x
+    def codisp(self, leaf):
+        """
+        Compute collusive displacement at leaf
 
-        x: index of point
-        '''
-        node = self.leaves[x]
+        Parameters:
+        -----------
+        leaf: index of leaf or Leaf instance
+
+        Returns:
+        --------
+        codisplacement: float
+                        Collusive displacement if leaf is removed.
+        """
+        if not isinstance(leaf, Leaf):
+            try:
+                leaf = self.leaves[leaf]
+            except:
+                raise KeyError('leaf must be a Leaf instance or key to self.leaves')
+        node = leaf
         results = []
-        displacement = np.array(0, dtype=np.int64)
-        num_deleted  = np.array(0, dtype=np.int64)
         for _ in range(node.d):
             parent = node.u
             if parent is None:
@@ -202,65 +292,49 @@ class RCTree:
                 sibling = parent.r
             else:
                 sibling = parent.l
-            self.traverse(node, op=self._accumulate, accumulator=num_deleted)
-            self.traverse(sibling, op=self._accumulate, accumulator=displacement)
-            result = np.asscalar(displacement / num_deleted)
+            num_deleted = node.n
+            displacement = sibling.n
+            result = (displacement / num_deleted)
             results.append(result)
             node = parent
-        return max(results)
+        co_displacement = max(results)
+        return co_displacement
 
-    def disp_all(self):
-        '''
-        Compute displacement at every leaf
-        '''
-        # Get node and parent
-        results = {}
-        for index, leaf in self.leaves.items():
-            node = leaf
-            parent = node.u
-            # Find sibling
-            if node is parent.l:
-                sibling = parent.r
-            else:
-                sibling = parent.l
-            # Count number of nodes in sibling subtree
-            results[index] = sibling.n
-        return results
+    def get_bbox(self, branch=None):
+        """
+        Compute bounding box of all points underneath a given branch.
 
-    def codisp_all(self):
-        '''
-        Compute collusive displacement at every leaf
+        Parameters:
+        -----------
+        branch: Branch instance
+                Starting branch. Defaults to root of tree.
 
-        x: index of point
-        '''
-        results = {}
-        for index, leaf in self.leaves.items():
-            node = leaf
-            leaf_results = []
-            for _ in range(node.d):
-                parent = node.u
-                if parent is None:
-                    break
-                if node is parent.l:
-                    sibling = parent.r
-                else:
-                    sibling = parent.l
-                num_deleted = node.n
-                displacement = sibling.n
-                result = (displacement / num_deleted)
-                leaf_results.append(result)
-                node = parent
-            results[index] = max(leaf_results)
-        return results
-
-    def get_bbox(self, node=None):
-        if node is None:
-            node = self.root
+        Returns:
+        --------
+        bbox: np.ndarray (2 x d)
+              Bounding box of all points underneath branch
+        """
+        if branch is None:
+            branch = self.root
         mins = np.full(self.ndim, np.inf)
         maxes = np.full(self.ndim, -np.inf)
-        self.traverse(node, op=self._get_bbox, mins=mins, maxes=maxes)
+        self.traverse(branch, op=self._get_bbox, mins=mins, maxes=maxes)
         bbox = np.vstack([mins, maxes])
         return bbox
+
+    def _count_all_top_down(self, node):
+        if isinstance(node, Branch):
+            if node.l:
+                self._count_all_top_down(node.l)
+            if node.r:
+                self._count_all_top_down(node.r)
+            node.n = node.l.n + node.r.n
+
+    def _count_leaves(self, node):
+        num_leaves = np.array(0, dtype=np.int64)
+        self.traverse(node, op=self._accumulate, accumulator=num_leaves)
+        num_leaves = np.asscalar(num_leaves)
+        return num_leaves
 
     def _query(self, point, node):
         if isinstance(node, Leaf):
@@ -286,71 +360,27 @@ class RCTree:
         mins[lt] = x.x[lt]
         maxes[gt] = x.x[gt]
 
-    def insert_point(self, point, i=None):
-        node = self.root
-        parent = node.u
-        maxdepth = max([leaf.d for leaf in self.leaves.values()])
-        depth = 0
-        # TODO: Check correctness of maxdepth
-        for _ in range(maxdepth):
-            bbox = self.get_bbox(node)
-            cut_dimension, cut = self._insert_point_cut(point, bbox)
-            # TODO: Should this be >= or >?
-            if (cut <= bbox[0, cut_dimension]):
-                leaf = Leaf(x=point, i=i, d=depth)
-                branch = Branch(q=cut_dimension, p=cut, l=leaf, r=node,
-                                n=(leaf.n + node.n))
-                break
-            elif (cut >= bbox[1, cut_dimension]):
-                leaf = Leaf(x=point, i=i, d=depth)
-                branch = Branch(q=cut_dimension, p=cut, l=node, r=leaf,
-                                n=(leaf.n + node.n))
-                break
-            else:
-                depth += 1
-                if point[node.q] <= node.p:
-                    parent = node
-                    node = node.l
-                    side = 'l'
-                else:
-                    parent = node
-                    node = node.r
-                    side = 'r'
-        # Set parent of new branch and leaf
-        node.u = branch
-        leaf.u = branch
-        branch.u = parent
-        # Set child of parent to new branch
-        setattr(parent, side, branch)
-        # Increment depths below branch
-        self.traverse(branch, op=self._increment_depth, inc=1)
-        # Increment leaf count above branch
-        # TODO: Check correctness
-        for _ in range(leaf.d):
-            if parent:
-                parent.n += 1
-                parent = parent.u
-            else:
-                break
-        # Add leaf to leaves dict
-        self.leaves[i] = leaf
-        # Return inserted leaf for convenience
-        return leaf
-
     def _insert_point_cut(self, point, bbox):
         """
-        Generates the cut dimension and cut value
-        based on the InsertPoint algorithm
-        ----
-        Inputs:
-        S : Set of point to be split (numpy array (n x d))
-        p : New point to be inserted (numpy array (1 x d))
-
-        Returs:
-        dimenstion for cut, cut value
-        ----
+        Generates the cut dimension and cut value based on the InsertPoint algorithm.
+        -----------
+        Parameters:
+        -----------
+        point: np.ndarray (1 x d)
+               New point to be inserted.
+        bbox: np.ndarray(2 x d)
+              Bounding box of point set S.
+        --------
+        Returns:
+        --------
+        cut_dimension: int
+                       Dimension to cut over.
+        cut: float
+             Value of cut.
+        --------
         Example:
-        InsertPoint_cut(x_inital, x_new)
+        --------
+        _insert_point_cut(x_inital, bbox)
         (0, 0.9758881798109296)
         """
         # Generate the bounding box
@@ -373,6 +403,18 @@ class RCTree:
         return cut_dimension, cut
 
 class Branch:
+    """
+    Branch of RCTree containing two children and at most one parent.
+
+    Attributes:
+    -----------
+    q: Dimension of cut
+    p: Value of cut
+    l: Pointer to left child
+    r: Pointer to right child
+    u: Pointer to parent
+    n: Number of leaves under branch
+    """
     __slots__ = ['q', 'p', 'l', 'r', 'u', 'n']
     def __init__(self, q, p, l=None, r=None, u=None, n=0):
         self.l = l
@@ -383,6 +425,17 @@ class Branch:
         self.n = n
 
 class Leaf:
+    """
+    Leaf of RCTree containing two children and at most one parent.
+
+    Attributes:
+    -----------
+    i: Index of leaf (user-specified)
+    d: Depth of leaf
+    u: Pointer to parent
+    x: Original point (1 x d)
+    n: Number of points in leaf (1 if no duplicates)
+    """
     __slots__ = ['i', 'd', 'u', 'x', 'n']
     def __init__(self, i, d=None, u=None, x=None, n=1):
         self.u = u
