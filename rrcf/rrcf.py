@@ -8,6 +8,11 @@ class RCTree:
     X = np.random.randn(100,2)
     tree = RCTree(X)
 
+    Parameters:
+    -----------
+    X: np.ndarray (n x d)
+       Array containing n data points, each with dimension d.
+
     Attributes:
     -----------
     root: Pointer to root of tree
@@ -85,14 +90,16 @@ class RCTree:
         depth -= 1
 
     def traverse(self, node, op=(lambda x: None), *args, **kwargs):
-        '''
+        """
         Traverse tree recursively, calling operation given by op on leaves
 
+        Parameters:
+        -----------
         node: node in RCTree
         op: function to call on each leaf
         *args: positional arguments to op
         **kwargs: keyword arguments to op
-        '''
+        """
         if isinstance(node, Branch):
             if node.l:
                 self.traverse(node.l, op=op, *args, **kwargs)
@@ -101,9 +108,24 @@ class RCTree:
         else:
             op(node, *args, **kwargs)
 
-    def forget_point(self, x):
-        # Pop pointer to leaf out of leaves dict
-        leaf = self.leaves.pop(x)
+    def forget_point(self, leaf):
+        """
+        Delete leaf from tree
+
+        Parameters:
+        -----------
+        leaf: index of leaf in tree or Leaf instance
+        """
+        if not isinstance(leaf, Leaf):
+            try:
+                # Pop pointer to leaf out of leaves dict
+                leaf = self.leaves.pop(leaf)
+            except:
+                raise KeyError('leaf must be a Leaf instance or key to self.leaves')
+        else:
+            # TODO: This is kind of bad
+            index = [k for (k, v) in self.items() if v is leaf][0]
+            self.leaves.pop(index)
         # Find parent and grandparent
         parent = leaf.u
         grandparent = parent.u
@@ -123,7 +145,7 @@ class RCTree:
         parent = grandparent
         self.traverse(parent, op=self._increment_depth, inc=-1)
         # Update leaf counts under each branch
-        # TODO: Check correctness
+        # TODO: Check correctness of leaf.d
         for _ in range(leaf.d):
             if parent:
                 parent.n -= 1
@@ -131,29 +153,43 @@ class RCTree:
             else:
                 break
 
-    def insert_point(self, point, i=None):
+    def insert_point(self, point, index=None):
+        """
+        Inserts a point into the tree, creating a new leaf
+
+        Parameters:
+        -----------
+        point: np.ndarray (1 x d)
+        index: identifier for new leaf in tree
+
+        Returns:
+        --------
+        leaf: Leaf
+              New leaf in tree
+        """
+        point = point.ravel()
         node = self.root
         parent = node.u
         maxdepth = max([leaf.d for leaf in self.leaves.values()])
         depth = 0
-        # TODO: Check correctness of maxdepth
-        for _ in range(maxdepth):
+        # TODO: Check correctness of maxdepth + 1
+        for _ in range(maxdepth + 1):
             bbox = self.get_bbox(node)
             cut_dimension, cut = self._insert_point_cut(point, bbox)
             # TODO: Should this be >= or >?
             if (cut <= bbox[0, cut_dimension]):
-                leaf = Leaf(x=point, i=i, d=depth)
+                leaf = Leaf(x=point, i=index, d=depth)
                 branch = Branch(q=cut_dimension, p=cut, l=leaf, r=node,
                                 n=(leaf.n + node.n))
                 break
             elif (cut >= bbox[1, cut_dimension]):
-                leaf = Leaf(x=point, i=i, d=depth)
+                leaf = Leaf(x=point, i=index, d=depth)
                 branch = Branch(q=cut_dimension, p=cut, l=node, r=leaf,
                                 n=(leaf.n + node.n))
                 break
             else:
                 depth += 1
-                if point[:, node.q] <= node.p:
+                if point[node.q] <= node.p:
                     parent = node
                     node = node.l
                     side = 'l'
@@ -161,12 +197,14 @@ class RCTree:
                     parent = node
                     node = node.r
                     side = 'r'
-        # Set parent of new branch and leaf
+        # Set parent of new leaf and old branch
         node.u = branch
         leaf.u = branch
+        # Set parent of new branch
         branch.u = parent
-        # Set child of parent to new branch
-        setattr(parent, side, branch)
+        if parent is not None:
+            # Set child of parent to new branch
+            setattr(parent, side, branch)
         # Increment depths below branch
         self.traverse(branch, op=self._increment_depth, inc=1)
         # Increment leaf count above branch
@@ -178,27 +216,39 @@ class RCTree:
             else:
                 break
         # Add leaf to leaves dict
-        self.leaves[i] = leaf
+        self.leaves[index] = leaf
         # Return inserted leaf for convenience
         return leaf
 
     def query(self, point, node=None):
-        '''
+        """
         Search for leaf nearest to point
 
-        point: point to search for
-        node: node in RCTree
-        '''
+        Parameters:
+        -----------
+        point: np.ndarray (1 x d)
+               Point to search for
+        node: Branch instance
+              Defaults to root node
+        """
+        point = point.ravel()
         if node is None:
             node = self.root
         return self._query(point, node)
 
     def disp(self, leaf):
-        '''
+        """
         Compute displacement at leaf
 
-        leaf: index of point
-        '''
+        Parameters:
+        -----------
+        leaf: index of leaf or Leaf instance
+
+        Returns:
+        --------
+        displacement: int
+                      Displacement if leaf is removed.
+        """
         if not isinstance(leaf, Leaf):
             try:
                 leaf = self.leaves[leaf]
@@ -215,11 +265,18 @@ class RCTree:
         return displacement
 
     def codisp(self, leaf):
-        '''
+        """
         Compute collusive displacement at leaf
 
-        leaf: index of point
-        '''
+        Parameters:
+        -----------
+        leaf: index of leaf or Leaf instance
+
+        Returns:
+        --------
+        codisplacement: float
+                        Collusive displacement if leaf is removed.
+        """
         if not isinstance(leaf, Leaf):
             try:
                 leaf = self.leaves[leaf]
@@ -243,24 +300,29 @@ class RCTree:
         co_displacement = max(results)
         return co_displacement
 
-    def get_bbox(self, node=None):
-        if node is None:
-            node = self.root
+    def get_bbox(self, branch=None):
+        """
+        Compute bounding box of all points underneath a given branch.
+
+        Parameters:
+        -----------
+        branch: Branch instance
+                Starting branch. Defaults to root of tree.
+
+        Returns:
+        --------
+        bbox: np.ndarray (2 x d)
+              Bounding box of all points underneath branch
+        """
+        if branch is None:
+            branch = self.root
         mins = np.full(self.ndim, np.inf)
         maxes = np.full(self.ndim, -np.inf)
-        self.traverse(node, op=self._get_bbox, mins=mins, maxes=maxes)
+        self.traverse(branch, op=self._get_bbox, mins=mins, maxes=maxes)
         bbox = np.vstack([mins, maxes])
         return bbox
 
     def _count_all_top_down(self, node):
-        '''
-        Traverse tree recursively, calling operation given by op on leaves
-
-        node: node in RCTree
-        op: function to call on each branch
-        *args: positional arguments to op
-        **kwargs: keyword arguments to op
-        '''
         if isinstance(node, Branch):
             if node.l:
                 self._count_all_top_down(node.l)
@@ -278,7 +340,7 @@ class RCTree:
         if isinstance(node, Leaf):
             return node
         else:
-            if point[:, node.q] <= node.p:
+            if point[node.q] <= node.p:
                 return self._query(point, node.l)
             else:
                 return self._query(point, node.r)
@@ -300,18 +362,25 @@ class RCTree:
 
     def _insert_point_cut(self, point, bbox):
         """
-        Generates the cut dimension and cut value
-        based on the InsertPoint algorithm
-        ----
-        Inputs:
-        S : Set of point to be split (numpy array (n x d))
-        p : New point to be inserted (numpy array (1 x d))
-
-        Returs:
-        dimenstion for cut, cut value
-        ----
+        Generates the cut dimension and cut value based on the InsertPoint algorithm.
+        -----------
+        Parameters:
+        -----------
+        point: np.ndarray (1 x d)
+               New point to be inserted.
+        bbox: np.ndarray(2 x d)
+              Bounding box of point set S.
+        --------
+        Returns:
+        --------
+        cut_dimension: int
+                       Dimension to cut over.
+        cut: float
+             Value of cut.
+        --------
         Example:
-        InsertPoint_cut(x_inital, x_new)
+        --------
+        _insert_point_cut(x_inital, bbox)
         (0, 0.9758881798109296)
         """
         # Generate the bounding box
@@ -334,6 +403,18 @@ class RCTree:
         return cut_dimension, cut
 
 class Branch:
+    """
+    Branch of RCTree containing two children and at most one parent.
+
+    Attributes:
+    -----------
+    q: Dimension of cut
+    p: Value of cut
+    l: Pointer to left child
+    r: Pointer to right child
+    u: Pointer to parent
+    n: Number of leaves under branch
+    """
     __slots__ = ['q', 'p', 'l', 'r', 'u', 'n']
     def __init__(self, q, p, l=None, r=None, u=None, n=0):
         self.l = l
@@ -344,6 +425,17 @@ class Branch:
         self.n = n
 
 class Leaf:
+    """
+    Leaf of RCTree containing two children and at most one parent.
+
+    Attributes:
+    -----------
+    i: Index of leaf (user-specified)
+    d: Depth of leaf
+    u: Pointer to parent
+    x: Original point (1 x d)
+    n: Number of points in leaf (1 if no duplicates)
+    """
     __slots__ = ['i', 'd', 'u', 'x', 'n']
     def __init__(self, i, d=None, u=None, x=None, n=1):
         self.u = u
