@@ -123,8 +123,7 @@ class RCTree:
             except:
                 raise KeyError('leaf must be a Leaf instance or key to self.leaves')
         else:
-            # TODO: This is kind of bad
-            index = [k for (k, v) in self.items() if v is leaf][0]
+            index = leaf.i
             self.leaves.pop(index)
         # Find parent and grandparent
         parent = leaf.u
