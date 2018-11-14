@@ -24,13 +24,20 @@ class RCTree:
         # Initialize tree root
         self.root = None
         if X is not None:
+            # Check for duplicates
+            U, N = np.unique(X, return_counts=True, axis=0)
+            # If duplicates exist, take unique elements
+            if N.max() > 1:
+                X = U
+            else:
+                N = np.ones(X.shape[0], dtype=np.int)
             # Store dimension of dataset
             self.ndim = X.shape[1]
             # Set node above to None in case of bottom-up search
             self.u = None
             # Create RRC Tree
             S = np.ones(X.shape[0], dtype=np.bool)
-            self._mktree(X, S, parent=self)
+            self._mktree(X, S, N, parent=self)
             # Remove parent of root
             self.root.u = None
             # Count all leaves under each branch
@@ -58,7 +65,7 @@ class RCTree:
             setattr(parent, side, child)
         return S1, S2, child
 
-    def _mktree(self, X, S, parent=None, side='root', depth=0):
+    def _mktree(self, X, S, N, parent=None, side='root', depth=0):
         # Increment depth as we traverse down
         depth += 1
         # Create a cut according to definition 1
@@ -66,24 +73,24 @@ class RCTree:
         # If S1 does not contain an isolated point...
         if S1.sum() > 1:
             # Recursively construct tree on S1
-            self._mktree(X, S1, parent=branch, side='l', depth=depth)
+            self._mktree(X, S1, N, parent=branch, side='l', depth=depth)
         # Otherwise...
         else:
             # Create a leaf node from isolated point
             i = np.asscalar(np.flatnonzero(S1))
-            leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :])
+            leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :], n=N[i])
             # Link leaf node to parent
             branch.l = leaf
             self.leaves[i] = leaf
         # If S2 does not contain an isolated point...
         if S2.sum() > 1:
             # Recursively construct tree on S2
-            self._mktree(X, S2, parent=branch, side='r', depth=depth)
+            self._mktree(X, S2, N, parent=branch, side='r', depth=depth)
         # Otherwise...
         else:
             # Create a leaf node from isolated point
             i = np.asscalar(np.flatnonzero(S2))
-            leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :])
+            leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :], n=N[i])
             # Link leaf node to parent
             branch.r = leaf
             self.leaves[i] = leaf
@@ -401,7 +408,7 @@ class RCTree:
         x.d += (inc)
 
     def _accumulate(self, x, accumulator):
-        accumulator += 1
+        accumulator += (x.n)
 
     def _get_leaves(self, x, stack):
         stack.append(x.i)
