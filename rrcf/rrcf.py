@@ -41,7 +41,10 @@ class RCTree:
     # Insert a point
     x = np.random.randn(2)
     tree.insert_point(x, index=100)
-    # Forget point
+    # Compute collusive displacement of new point (anomaly score)
+    tree.codisp(100)
+    # Remove point
+    tree.forget_point(100)
     """
     def __init__(self, X=None):
         # Initialize dict for leaves
