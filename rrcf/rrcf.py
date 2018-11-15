@@ -2,11 +2,11 @@ import numpy as np
 
 class RCTree:
     """
-    Robust random cut tree data structure.
+    Robust random cut tree data structure:
 
-    Example usage:
-    X = np.random.randn(100,2)
-    tree = RCTree(X)
+    Guha, S., Mishra, N., Roy, G., & Schrijvers, O. (2016, June). Robust random cut forest
+    based anomaly detection on streams. In International conference on machine learning
+    (pp. 2712-2721).
 
     Parameters:
     -----------
@@ -15,14 +15,43 @@ class RCTree:
 
     Attributes:
     -----------
-    root: Pointer to root of tree
-    leaves: Dict containing pointers to all leaves in tree
+    root: Branch or Leaf instance
+          Pointer to root of tree.
+    leaves: dict
+            Dict containing pointers to all leaves in tree.
+    ndim: int
+          dimension of points in the tree
+
+    Methods:
+    --------
+    insert_point: inserts a new point into the tree.
+    forget_point: removes a point from the tree.
+    disp: compute displacement associated with the removal of a leaf.
+    codisp: compute collusive displacement associated with the removal of a leaf.
+    traverse: traverses all nodes in the tree and executes a user-specified
+              function on the leaves.
+    query: finds nearest point in tree.
+    get_box: find bounding box of points under a given node.
+    find_duplicate: finds duplicate points in the tree.
+
+    Example:
+    --------
+    X = np.random.randn(100,2)
+    tree = RCTree(X)
+    # Insert a point
+    x = np.random.randn(2)
+    tree.insert_point(x, index=100)
+    # Compute collusive displacement of new point (anomaly score)
+    tree.codisp(100)
+    # Remove point
+    tree.forget_point(100)
     """
     def __init__(self, X=None):
         # Initialize dict for leaves
         self.leaves = {}
         # Initialize tree root
         self.root = None
+        self.ndim = None
         if X is not None:
             # Check for duplicates
             U, N = np.unique(X, return_counts=True, axis=0)
@@ -517,7 +546,7 @@ class Branch:
 
 class Leaf:
     """
-    Leaf of RCTree containing two children and at most one parent.
+    Leaf of RCTree containing no children and at most one parent.
 
     Attributes:
     -----------
