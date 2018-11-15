@@ -11,7 +11,8 @@ class RCTree:
     Parameters:
     -----------
     X: np.ndarray (n x d)
-       Array containing n data points, each with dimension d.
+       Array containing n data points, each with dimension d (optional).
+       If no data provided, an empty tree is created.
 
     Attributes:
     -----------
@@ -27,7 +28,8 @@ class RCTree:
     insert_point: inserts a new point into the tree.
     forget_point: removes a point from the tree.
     disp: compute displacement associated with the removal of a leaf.
-    codisp: compute collusive displacement associated with the removal of a leaf.
+    codisp: compute collusive displacement associated with the removal of a leaf
+            (anomaly score).
     traverse: traverses all nodes in the tree and executes a user-specified
               function on the leaves.
     query: finds nearest point in tree.
@@ -57,15 +59,17 @@ class RCTree:
             U, N = np.unique(X, return_counts=True, axis=0)
             # If duplicates exist, take unique elements
             if N.max() > 1:
+                n, d = U.shape
                 X = U
             else:
-                N = np.ones(X.shape[0], dtype=np.int)
+                n, d = X.shape
+                N = np.ones(n, dtype=np.int)
             # Store dimension of dataset
-            self.ndim = X.shape[1]
+            self.ndim = d
             # Set node above to None in case of bottom-up search
             self.u = None
             # Create RRC Tree
-            S = np.ones(X.shape[0], dtype=np.bool)
+            S = np.ones(n, dtype=np.bool)
             self._mktree(X, S, N, parent=self)
             # Remove parent of root
             self.root.u = None
@@ -177,13 +181,18 @@ class RCTree:
         else:
             op(node, *args, **kwargs)
 
-    def forget_point(self, leaf, tolerance=None):
+    def forget_point(self, leaf):
         """
         Delete leaf from tree
 
         Parameters:
         -----------
         leaf: index of leaf in tree or Leaf instance
+
+        Returns:
+        --------
+        leaf: Leaf instance
+              Deleted leaf
         """
         if not isinstance(leaf, Leaf):
             try:
@@ -196,13 +205,14 @@ class RCTree:
             index = leaf.i
         # If duplicate points exist...
         if leaf.n > 1:
-            # Simply decrement the number of points in the leaf and upwards
+            # Simply decrement the number of points in the leaf and for all branches above
             self._update_leaf_count_upwards(leaf, inc=-1)
             return leaf
         # Weird cases here:
         # If leaf is the root...
         if leaf is self.root:
             self.root = None
+            self.ndim = None
             return self.leaves.pop(index)
         # Find parent
         parent = leaf.u
@@ -243,7 +253,7 @@ class RCTree:
             node.n += inc
             node = node.u
 
-    def insert_point(self, point, index=None, tolerance=None):
+    def insert_point(self, point, index, tolerance=None):
         """
         Inserts a point into the tree, creating a new leaf
 
