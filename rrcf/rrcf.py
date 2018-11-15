@@ -43,6 +43,38 @@ class RCTree:
             # Count all leaves under each branch
             self._count_all_top_down(self.root)
 
+    def __repr__(self):
+        depth = ""
+        treestr = ""
+
+        def print_push(char):
+            nonlocal depth
+            branch_str = ' {}  '.format(char)
+            depth += branch_str
+
+        def print_pop():
+            nonlocal depth
+            depth = depth[:-4]
+
+        def print_tree(node):
+            nonlocal depth
+            nonlocal treestr
+            if isinstance(node, Leaf):
+                treestr += '({})\n'.format(node.i)
+            elif isinstance(node, Branch):
+                treestr += '{0}{1}\n'.format(chr(9472), '+')
+                treestr += '{0} {1}{2}{2}'.format(depth, chr(9500), chr(9472))
+                print_push(chr(9474))
+                print_tree(node.l)
+                print_pop()
+                treestr += '{0} {1}{2}{2}'.format(depth, chr(9492), chr(9472))
+                print_push(' ')
+                print_tree(node.r)
+                print_pop()
+
+        print_tree(self.root)
+        return treestr
+
     def _cut(self, X, S, parent=None, side='l'):
         # Find max and min over all d dimensions
         xmax = X[S].max(axis=0)
