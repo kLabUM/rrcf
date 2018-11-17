@@ -230,6 +230,7 @@ class RCTree:
             if isinstance(sibling, Leaf):
                 sibling.d = 0
             self.root = sibling
+            self.traverse(sibling, op=self._increment_depth, inc=-1)
             return self.leaves.pop(index)
         # Find grandparent
         grandparent = parent.u
@@ -242,7 +243,7 @@ class RCTree:
             grandparent.r = sibling
         # Update depths
         parent = grandparent
-        self.traverse(parent, op=self._increment_depth, inc=-1)
+        self.traverse(sibling, op=self._increment_depth, inc=-1)
         # Update leaf counts under each branch
         self._update_leaf_count_upwards(parent, inc=-1)
         return self.leaves.pop(index)
