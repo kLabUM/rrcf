@@ -1,13 +1,17 @@
-# rrcf
+# rrcf 🌲🌲🌲
 Implementation of the *Robust Random Cut Forest Algorithm* for anomaly detection by Guha et al. (2016).
 
-## Creating a random cut tree
+## Robust random cut trees
+
+A robust random cut tree is a binary search tree that can be used to detect outliers in a point set. Points located nearer to the root of the tree are more likely to be outliers.
+
+### Creating the tree
 
 ```python
 import numpy as np
 import rrcf
 
-# A random cut tree can be instantiated from a point set (n x d)
+# A (robust) random cut tree can be instantiated from a point set (n x d)
 X = np.random.randn(100, 2)
 tree = rrcf.RCTree(X)
 
@@ -59,6 +63,8 @@ tree.forget_point(2)
 
 ## Anomaly score
 
+The likelihood that a point is an outlier is measured by its collusive displacement (CoDisp): if including a new point significantly changes the model complexity (i.e. bit depth), then that point is more likely to be an outlier.
+
 ```python
 # Seed tree with zero-mean, normally distributed data
 X = np.random.randn(100,2)
@@ -84,6 +90,8 @@ tree.codisp('outlier')
 ```
 
 ## Batch anomaly detection
+
+This example shows how a robust random cut forest can be used to detect outliers in a batch setting. Outliers correspond to large CoDisp.
 
 ```python
 # Set parameters
@@ -112,3 +120,26 @@ avg_codisp /= num_trees
 ```
 
 ![Image](https://github.com/kLabUM/rrcf/blob/master/resources/batch.png)
+
+## Installation
+
+To install:
+
+```shell
+git clone https://github.com/kLabUM/rrcf.git
+```
+
+Then:
+
+```shell
+cd rrcf
+python setup.py install
+```
+
+Or:
+```shell
+cd rrcf
+pip install .
+```
+
+Currently, only Python 3 is supported.
