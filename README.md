@@ -57,6 +57,31 @@ tree.forget_point(2)
  └──(1)
 ```
 
+## Anomaly score
+
+```python
+# Seed tree with zero-mean, normally distributed data
+X = np.random.randn(100,2)
+tree = rrcf.RCTree(X)
+
+# Generate an inlier and outlier point
+inlier = np.array([0, 0])
+outlier = np.array([4, 4])
+
+# Insert into tree
+tree.insert_point(inlier, index='inlier')
+tree.insert_point(outlier, index='outlier')
+```
+
+```python
+tree.codisp('inlier')
+>>> 1.75
+```
+
+```python
+tree.codisp('outlier')
+>>> 39.0
+```
 
 ## Batch anomaly detection
 
