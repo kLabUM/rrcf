@@ -1,5 +1,11 @@
 # rrcf 🌲🌲🌲
-Implementation of the *Robust Random Cut Forest Algorithm* for anomaly detection by Guha et al. (2016).
+Implementation of the *Robust Random Cut Forest Algorithm* for anomaly detection by [Guha et al. (2016)](http://proceedings.mlr.press/v48/guha16.pdf).
+
+```
+S. Guha, N. Mishra, G. Roy, & O. Schrijvers. Robust random cut forest based anomaly
+detection on streams, in Proceedings of the 33rd International conference on machine
+learning, New York, NY, 2016 (pp. 2712-2721).
+```
 
 ## Robust random cut trees
 
