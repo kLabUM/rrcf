@@ -274,7 +274,8 @@ class RCTree:
         leaf: Leaf
               New leaf in tree
         """
-        point = np.asarray(point)
+        if not isinstance(point, np.ndarray):
+            point = np.asarray(point)
         point = point.ravel()
         if self.root is None:
             leaf = Leaf(x=point, i=index, d=0)
@@ -360,7 +361,8 @@ class RCTree:
         node: Branch instance
               Defaults to root node
         """
-        point = np.asarray(point)
+        if not isinstance(point, np.ndarray):
+            point = np.asarray(point)
         point = point.ravel()
         if node is None:
             node = self.root
@@ -611,7 +613,7 @@ class Branch:
         self.b = b
 
     def __repr__(self):
-        return "Branch( {} | {:.2f} )".format(self.q, self.p)
+        return "Branch(q={}, p={:.2f})".format(self.q, self.p)
 
 class Leaf:
     """
@@ -636,4 +638,4 @@ class Leaf:
         self.b = x.reshape(1, -1)
 
     def __repr__(self):
-        return "Leaf( {0} )".format(self.i)
+        return "Leaf({0})".format(self.i)
