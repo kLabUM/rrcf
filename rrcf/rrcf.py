@@ -183,6 +183,24 @@ class RCTree:
         else:
             op(node, *args, **kwargs)
 
+    def branch_traverse(self, node, op=(lambda x: None), *args, **kwargs):
+        """
+        Traverse tree recursively, calling operation given by op on branches
+
+        Parameters:
+        -----------
+        node: node in RCTree
+        op: function to call on each leaf
+        *args: positional arguments to op
+        **kwargs: keyword arguments to op
+        """
+        if isinstance(node, Branch):
+            if node.l:
+                self.branch_traverse(node.l, op=op, *args, **kwargs)
+            if node.r:
+                self.branch_traverse(node.r, op=op, *args, **kwargs)
+            op(node, *args, **kwargs)
+
     def forget_point(self, leaf):
         """
         Delete leaf from tree
@@ -250,7 +268,8 @@ class RCTree:
         # Update leaf counts under each branch
         self._update_leaf_count_upwards(parent, inc=-1)
         # Update bounding boxes
-        self._relax_bbox_upwards(parent)
+        point = leaf.x
+        self._relax_bbox_upwards(parent, point)
         return self.leaves.pop(index)
 
     def _update_leaf_count_upwards(self, node, inc=1):
@@ -507,8 +526,8 @@ class RCTree:
     def _accumulate(self, x, accumulator):
         accumulator += (x.n)
 
-    def _get_leaves(self, x, stack):
-        stack.append(x.i)
+    def _get_nodes(self, x, stack):
+        stack.append(x)
 
     def _get_bbox(self, x, mins, maxes):
         lt = (x.x < mins)
@@ -526,21 +545,24 @@ class RCTree:
         while node:
             lt = (bbox[0,:] < node.b[0,:])
             gt = (bbox[-1,:] > node.b[-1,:])
-            if lt.any():
-                node.b[0,:][lt] = bbox[0,:][lt]
-            elif gt.any():
-                node.b[-1,:][gt] = bbox[-1,:][gt]
+            lt_any = lt.any()
+            gt_any = gt.any()
+            if lt_any or gt_any:
+                if lt_any:
+                    node.b[0,:][lt] = bbox[0,:][lt]
+                if gt_any:
+                    node.b[-1,:][gt] = bbox[-1,:][gt]
             else:
                 break
             node = node.u
 
-    def _relax_bbox_upwards(self, node):
+    def _relax_bbox_upwards(self, node, point):
         """
         Called when point is deleted
         """
         while node:
             bbox = self._lr_branch_bbox(node)
-            if (node.b[0,:] == bbox[0,:]).all() or (node.b[-1,:] == bbox[-1,:]).all():
+            if not ((node.b[0,:] == point) | (node.b[-1,:] == point)).any():
                 break
             node.b[0,:] = bbox[0,:]
             node.b[-1,:] = bbox[-1,:]
