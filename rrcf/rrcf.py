@@ -75,6 +75,8 @@ class RCTree:
             self.root.u = None
             # Count all leaves under each branch
             self._count_all_top_down(self.root)
+            # Set bboxes of all branches
+            self._get_bbox_top_down(self.root)
 
     def __repr__(self):
         depth = ""
@@ -181,6 +183,24 @@ class RCTree:
         else:
             op(node, *args, **kwargs)
 
+    def branch_traverse(self, node, op=(lambda x: None), *args, **kwargs):
+        """
+        Traverse tree recursively, calling operation given by op on branches
+
+        Parameters:
+        -----------
+        node: node in RCTree
+        op: function to call on each leaf
+        *args: positional arguments to op
+        **kwargs: keyword arguments to op
+        """
+        if isinstance(node, Branch):
+            if node.l:
+                self.branch_traverse(node.l, op=op, *args, **kwargs)
+            if node.r:
+                self.branch_traverse(node.r, op=op, *args, **kwargs)
+            op(node, *args, **kwargs)
+
     def forget_point(self, leaf):
         """
         Delete leaf from tree
@@ -230,6 +250,7 @@ class RCTree:
             if isinstance(sibling, Leaf):
                 sibling.d = 0
             self.root = sibling
+            # Update depths
             self.traverse(sibling, op=self._increment_depth, inc=-1)
             return self.leaves.pop(index)
         # Find grandparent
@@ -246,6 +267,9 @@ class RCTree:
         self.traverse(sibling, op=self._increment_depth, inc=-1)
         # Update leaf counts under each branch
         self._update_leaf_count_upwards(parent, inc=-1)
+        # Update bounding boxes
+        point = leaf.x
+        self._relax_bbox_upwards(parent, point)
         return self.leaves.pop(index)
 
     def _update_leaf_count_upwards(self, node, inc=1):
@@ -269,7 +293,8 @@ class RCTree:
         leaf: Leaf
               New leaf in tree
         """
-        point = np.asarray(point)
+        if not isinstance(point, np.ndarray):
+            point = np.asarray(point)
         point = point.ravel()
         if self.root is None:
             leaf = Leaf(x=point, i=index, d=0)
@@ -299,7 +324,7 @@ class RCTree:
         depth = 0
         # TODO: Check correctness of maxdepth + 1
         for _ in range(maxdepth + 1):
-            bbox = self.get_bbox(node)
+            bbox = node.b
             cut_dimension, cut = self._insert_point_cut(point, bbox)
             # TODO: Should this be >= or >?
             if (cut <= bbox[0, cut_dimension]):
@@ -307,7 +332,7 @@ class RCTree:
                 branch = Branch(q=cut_dimension, p=cut, l=leaf, r=node,
                                 n=(leaf.n + node.n))
                 break
-            elif (cut >= bbox[1, cut_dimension]):
+            elif (cut >= bbox[-1, cut_dimension]):
                 leaf = Leaf(x=point, i=index, d=depth)
                 branch = Branch(q=cut_dimension, p=cut, l=node, r=leaf,
                                 n=(leaf.n + node.n))
@@ -337,6 +362,8 @@ class RCTree:
         self.traverse(branch, op=self._increment_depth, inc=1)
         # Increment leaf count above branch
         self._update_leaf_count_upwards(parent, inc=1)
+        # Update bounding boxes
+        self._tighten_bbox_upwards(branch)
         # Add leaf to leaves dict
         self.leaves[index] = leaf
         # Return inserted leaf for convenience
@@ -353,7 +380,8 @@ class RCTree:
         node: Branch instance
               Defaults to root node
         """
-        point = np.asarray(point)
+        if not isinstance(point, np.ndarray):
+            point = np.asarray(point)
         point = point.ravel()
         if node is None:
             node = self.root
@@ -455,6 +483,20 @@ class RCTree:
                 return nearest
         return None
 
+    def _lr_branch_bbox(self, node):
+        bbox = np.vstack([np.minimum(node.l.b[0,:], node.r.b[0,:]),
+                          np.maximum(node.l.b[-1,:], node.r.b[-1,:])])
+        return bbox
+
+    def _get_bbox_top_down(self, node):
+        if isinstance(node, Branch):
+            if node.l:
+                self._get_bbox_top_down(node.l)
+            if node.r:
+                self._get_bbox_top_down(node.r)
+            bbox = self._lr_branch_bbox(node)
+            node.b = bbox
+
     def _count_all_top_down(self, node):
         if isinstance(node, Branch):
             if node.l:
@@ -484,14 +526,47 @@ class RCTree:
     def _accumulate(self, x, accumulator):
         accumulator += (x.n)
 
-    def _get_leaves(self, x, stack):
-        stack.append(x.i)
+    def _get_nodes(self, x, stack):
+        stack.append(x)
 
     def _get_bbox(self, x, mins, maxes):
         lt = (x.x < mins)
         gt = (x.x > maxes)
         mins[lt] = x.x[lt]
         maxes[gt] = x.x[gt]
+
+    def _tighten_bbox_upwards(self, node):
+        """
+        Called when new point is inserted
+        """
+        bbox = self._lr_branch_bbox(node)
+        node.b = bbox
+        node = node.u
+        while node:
+            lt = (bbox[0,:] < node.b[0,:])
+            gt = (bbox[-1,:] > node.b[-1,:])
+            lt_any = lt.any()
+            gt_any = gt.any()
+            if lt_any or gt_any:
+                if lt_any:
+                    node.b[0,:][lt] = bbox[0,:][lt]
+                if gt_any:
+                    node.b[-1,:][gt] = bbox[-1,:][gt]
+            else:
+                break
+            node = node.u
+
+    def _relax_bbox_upwards(self, node, point):
+        """
+        Called when point is deleted
+        """
+        while node:
+            bbox = self._lr_branch_bbox(node)
+            if not ((node.b[0,:] == point) | (node.b[-1,:] == point)).any():
+                break
+            node.b[0,:] = bbox[0,:]
+            node.b[-1,:] = bbox[-1,:]
+            node = node.u
 
     def _insert_point_cut(self, point, bbox):
         """
@@ -520,8 +595,8 @@ class RCTree:
         bbox_hat = np.empty(bbox.shape)
         # Update the bounding box based on the internal point
         bbox_hat[0, :] = np.minimum(bbox[0, :], point)
-        bbox_hat[1, :] = np.maximum(bbox[1, :], point)
-        b_span = bbox_hat[1, :] - bbox_hat[0, :]
+        bbox_hat[-1, :] = np.maximum(bbox[-1, :], point)
+        b_span = bbox_hat[-1, :] - bbox_hat[0, :]
         b_range = b_span.sum()
         r = np.random.uniform(0, b_range)
         span_sum = np.cumsum(b_span)
@@ -547,15 +622,20 @@ class Branch:
     r: Pointer to right child
     u: Pointer to parent
     n: Number of leaves under branch
+    b: Bounding box of points under branch (2 x d)
     """
-    __slots__ = ['q', 'p', 'l', 'r', 'u', 'n']
-    def __init__(self, q, p, l=None, r=None, u=None, n=0):
+    __slots__ = ['q', 'p', 'l', 'r', 'u', 'n', 'b']
+    def __init__(self, q, p, l=None, r=None, u=None, n=0, b=None):
         self.l = l
         self.r = r
         self.u = u
         self.q = q
         self.p = p
         self.n = n
+        self.b = b
+
+    def __repr__(self):
+        return "Branch(q={}, p={:.2f})".format(self.q, self.p)
 
 class Leaf:
     """
@@ -568,12 +648,16 @@ class Leaf:
     u: Pointer to parent
     x: Original point (1 x d)
     n: Number of points in leaf (1 if no duplicates)
+    b: Bounding box of point (1 x d)
     """
-    __slots__ = ['i', 'd', 'u', 'x', 'n']
+    __slots__ = ['i', 'd', 'u', 'x', 'n', 'b']
     def __init__(self, i, d=None, u=None, x=None, n=1):
         self.u = u
         self.i = i
         self.d = d
         self.x = x
         self.n = n
+        self.b = x.reshape(1, -1)
 
+    def __repr__(self):
+        return "Leaf({0})".format(self.i)
