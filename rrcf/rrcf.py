@@ -48,13 +48,15 @@ class RCTree:
     # Remove point
     tree.forget_point(100)
     """
-    def __init__(self, X=None):
+    def __init__(self, X=None, precision=9):
         # Initialize dict for leaves
         self.leaves = {}
         # Initialize tree root
         self.root = None
         self.ndim = None
         if X is not None:
+            # Round data to avoid sorting errors
+            X = np.around(X, decimals=precision)
             # Check for duplicates
             U, N = np.unique(X, return_counts=True, axis=0)
             # If duplicates exist, take unique elements
