@@ -421,6 +421,9 @@ class RCTree:
                 leaf = self.leaves[leaf]
             except:
                 raise KeyError('leaf must be a Leaf instance or key to self.leaves')
+        # Handle case where leaf is root
+        if leaf is self.root:
+            return 0
         parent = leaf.u
         # Find sibling
         if leaf is parent.l:
@@ -449,6 +452,9 @@ class RCTree:
                 leaf = self.leaves[leaf]
             except:
                 raise KeyError('leaf must be a Leaf instance or key to self.leaves')
+        # Handle case where leaf is root
+        if leaf is self.root:
+            return 0
         node = leaf
         results = []
         for _ in range(node.d):
