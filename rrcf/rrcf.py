@@ -235,6 +235,7 @@ class RCTree:
             except:
                 raise KeyError('leaf must be a Leaf instance or key to self.leaves')
         else:
+            # TODO: Many-to-one
             index = leaf.i
         # If duplicate points exist...
         if leaf.n > 1:
@@ -244,6 +245,7 @@ class RCTree:
         # Weird cases here:
         # If leaf is the root...
         if leaf is self.root:
+            # TODO: This won't necessarily work for duplicate leaf
             self.root = None
             self.ndim = None
             return self.leaves.pop(index)
@@ -328,7 +330,7 @@ class RCTree:
         # Check for duplicate points
         duplicate = self.find_duplicate(point, tolerance=tolerance)
         if duplicate:
-            duplicate.n += 1
+            self._update_leaf_count_upwards(duplicate, inc=1)
             self.leaves[index] = duplicate
             return duplicate
         # If tree has points and point is not a duplicate, continue with main algorithm...
