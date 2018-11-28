@@ -58,7 +58,7 @@ class RCTree:
             # Round data to avoid sorting errors
             X = np.around(X, decimals=precision)
             # Check for duplicates
-            U, N = np.unique(X, return_counts=True, axis=0)
+            U, I, N = np.unique(X, return_inverse=True, return_counts=True, axis=0)
             # If duplicates exist, take unique elements
             if N.max() > 1:
                 n, d = U.shape
@@ -66,13 +66,14 @@ class RCTree:
             else:
                 n, d = X.shape
                 N = np.ones(n, dtype=np.int)
+                I = None
             # Store dimension of dataset
             self.ndim = d
             # Set node above to None in case of bottom-up search
             self.u = None
             # Create RRC Tree
             S = np.ones(n, dtype=np.bool)
-            self._mktree(X, S, N, parent=self)
+            self._mktree(X, S, N, I, parent=self)
             # Remove parent of root
             self.root.u = None
             # Count all leaves under each branch
@@ -134,7 +135,7 @@ class RCTree:
             setattr(parent, side, child)
         return S1, S2, child
 
-    def _mktree(self, X, S, N, parent=None, side='root', depth=0):
+    def _mktree(self, X, S, N, I, parent=None, side='root', depth=0):
         # Increment depth as we traverse down
         depth += 1
         # Create a cut according to definition 1
@@ -142,7 +143,7 @@ class RCTree:
         # If S1 does not contain an isolated point...
         if S1.sum() > 1:
             # Recursively construct tree on S1
-            self._mktree(X, S1, N, parent=branch, side='l', depth=depth)
+            self._mktree(X, S1, N, I, parent=branch, side='l', depth=depth)
         # Otherwise...
         else:
             # Create a leaf node from isolated point
@@ -150,11 +151,16 @@ class RCTree:
             leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :], n=N[i])
             # Link leaf node to parent
             branch.l = leaf
-            self.leaves[i] = leaf
+            if I is not None:
+                j_s = np.where(I == i)[0]
+                for j in j_s:
+                    self.leaves[j] = leaf
+            else:
+                self.leaves[i] = leaf
         # If S2 does not contain an isolated point...
         if S2.sum() > 1:
             # Recursively construct tree on S2
-            self._mktree(X, S2, N, parent=branch, side='r', depth=depth)
+            self._mktree(X, S2, N, I, parent=branch, side='r', depth=depth)
         # Otherwise...
         else:
             # Create a leaf node from isolated point
@@ -162,7 +168,12 @@ class RCTree:
             leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :], n=N[i])
             # Link leaf node to parent
             branch.r = leaf
-            self.leaves[i] = leaf
+            if I is not None:
+                j_s = np.where(I == i)[0]
+                for j in j_s:
+                    self.leaves[j] = leaf
+            else:
+                self.leaves[i] = leaf
         # Decrement depth as we traverse back up
         depth -= 1
 
@@ -318,6 +329,7 @@ class RCTree:
         duplicate = self.find_duplicate(point, tolerance=tolerance)
         if duplicate:
             duplicate.n += 1
+            self.leaves[index] = duplicate
             return duplicate
         # If tree has points and point is not a duplicate, continue with main algorithm...
         node = self.root
