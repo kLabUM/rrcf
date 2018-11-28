@@ -240,7 +240,7 @@ class RCTree:
         if leaf.n > 1:
             # Simply decrement the number of points in the leaf and for all branches above
             self._update_leaf_count_upwards(leaf, inc=-1)
-            return leaf
+            return self.leaves.pop(index)
         # Weird cases here:
         # If leaf is the root...
         if leaf is self.root:
