@@ -14,7 +14,7 @@ indexes = deck[:5]
 def test_batch():
     # Check stored bounding boxes and leaf counts after instantiating from batch
     branches = []
-    tree.branch_traverse(tree.root, op=tree._get_nodes, stack=branches)
+    tree.map_branches(tree.root, op=tree._get_nodes, stack=branches)
     leafcount = tree._count_leaves(tree.root)
     assert (leafcount == n)
     for branch in branches:
@@ -28,7 +28,7 @@ def test_forget_batch():
     for index in indexes:
         forgotten = tree.forget_point(index)
         branches = []
-        tree.branch_traverse(tree.root, op=tree._get_nodes, stack=branches)
+        tree.map_branches(tree.root, op=tree._get_nodes, stack=branches)
         for branch in branches:
             leafcount = tree._count_leaves(branch)
             try:
@@ -53,7 +53,7 @@ def test_insert_batch():
         x = np.random.randn(d)
         tree.insert_point(x, index=index)
         branches = []
-        tree.branch_traverse(tree.root, op=tree._get_nodes, stack=branches)
+        tree.map_branches(tree.root, op=tree._get_nodes, stack=branches)
         for branch in branches:
             leafcount = tree._count_leaves(branch)
             try:
