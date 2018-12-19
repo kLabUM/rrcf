@@ -1,4 +1,5 @@
 from collections import deque
+import numpy as np
 
 def shingle(sequence, size):
     """
@@ -16,7 +17,7 @@ def shingle(sequence, size):
     window = deque(init, maxlen=size)
     if len(window) < size:
         raise IndexError('Sequence smaller than window size')
-    yield window
+    yield np.asarray(window)
     for elem in iterator:
         window.append(elem)
-        yield window
+        yield np.asarray(window)

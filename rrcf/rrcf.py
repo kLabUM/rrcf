@@ -220,23 +220,31 @@ class RCTree:
                 self.map_branches(node.r, op=op, *args, **kwargs)
             op(node, *args, **kwargs)
 
-    def forget_point(self, leaf):
+    def forget_point(self, index):
         """
         Delete leaf from tree
 
         Parameters:
         -----------
-        leaf: (Hashable type)
-              Index of leaf in tree
+        index: (Hashable type)
+               Index of leaf in tree
 
         Returns:
         --------
         leaf: Leaf instance
               Deleted leaf
+
+        Example:
+        --------
+        tree = RCTree()
+        # Insert a point
+        x = np.random.randn(2)
+        tree.insert_point(x, index=0)
+        # Forget point
+        tree.forget_point(0)
         """
         try:
             # Get leaf from leaves dict
-            index = leaf
             leaf = self.leaves[index]
         except:
             raise KeyError('Leaf must be a key to self.leaves')
@@ -290,7 +298,10 @@ class RCTree:
         return self.leaves.pop(index)
 
     def _update_leaf_count_upwards(self, node, inc=1):
-        # TODO: Should probably make this a loop
+        """
+        Called after inserting or removing leaves. Updates the stored count of leaves
+        beneath each branch (branch.n).
+        """
         while node:
             node.n += inc
             node = node.u
@@ -311,6 +322,13 @@ class RCTree:
         --------
         leaf: Leaf
               New leaf in tree
+
+        Example:
+        --------
+        tree = RCTree()
+        # Insert a point
+        x = np.random.randn(2)
+        tree.insert_point(x, index=0)
         """
         if not isinstance(point, np.ndarray):
             point = np.asarray(point)
@@ -533,11 +551,17 @@ class RCTree:
         return None
 
     def _lr_branch_bbox(self, node):
+        """
+        Compute bbox of node based on bboxes of node's children.
+        """
         bbox = np.vstack([np.minimum(node.l.b[0,:], node.r.b[0,:]),
                           np.maximum(node.l.b[-1,:], node.r.b[-1,:])])
         return bbox
 
     def _get_bbox_top_down(self, node):
+        """
+        Recursively compute bboxes of all branches from root to leaves.
+        """
         if isinstance(node, Branch):
             if node.l:
                 self._get_bbox_top_down(node.l)
@@ -547,6 +571,10 @@ class RCTree:
             node.b = bbox
 
     def _count_all_top_down(self, node):
+        """
+        Recursively compute number of leaves below each branch from
+        root to leaves.
+        """
         if isinstance(node, Branch):
             if node.l:
                 self._count_all_top_down(node.l)
@@ -555,12 +583,18 @@ class RCTree:
             node.n = node.l.n + node.r.n
 
     def _count_leaves(self, node):
+        """
+        Count leaves underneath a single node.
+        """
         num_leaves = np.array(0, dtype=np.int64)
         self.map_leaves(node, op=self._accumulate, accumulator=num_leaves)
         num_leaves = np.asscalar(num_leaves)
         return num_leaves
 
     def _query(self, point, node):
+        """
+        Recursively search for the nearest leaf to a given point.
+        """
         if isinstance(node, Leaf):
             return node
         else:
@@ -570,15 +604,27 @@ class RCTree:
                 return self._query(point, node.r)
 
     def _increment_depth(self, x, inc=1):
+        """
+        Primitive function for incrementing the depth attribute of a leaf.
+        """
         x.d += (inc)
 
     def _accumulate(self, x, accumulator):
+        """
+        Primitive function for helping to count the number of points in a subtree.
+        """
         accumulator += (x.n)
 
     def _get_nodes(self, x, stack):
+        """
+        Primitive function for listing all leaves in a subtree.
+        """
         stack.append(x)
 
     def _get_bbox(self, x, mins, maxes):
+        """
+        Primitive function for computing the bbox of a point.
+        """
         lt = (x.x < mins)
         gt = (x.x > maxes)
         mins[lt] = x.x[lt]
