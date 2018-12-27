@@ -50,7 +50,7 @@ class RCTree:
     # Remove point
     tree.forget_point(100)
     """
-    def __init__(self, X=None, precision=9):
+    def __init__(self, X=None, index_labels=None, precision=9):
         # Initialize dict for leaves
         self.leaves = {}
         # Initialize tree root
@@ -59,6 +59,10 @@ class RCTree:
         if X is not None:
             # Round data to avoid sorting errors
             X = np.around(X, decimals=precision)
+            # Initialize index labels, if they exist
+            if index_labels is None:
+                index_labels = np.arange(X.shape[0], dtype=int)
+            self.index_labels = index_labels
             # Check for duplicates
             U, I, N = np.unique(X, return_inverse=True, return_counts=True, axis=0)
             # If duplicates exist, take unique elements
@@ -150,6 +154,7 @@ class RCTree:
         else:
             # Create a leaf node from isolated point
             i = np.asscalar(np.flatnonzero(S1))
+            # TODO: Leaf label is broken
             leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :], n=N[i])
             # Link leaf node to parent
             branch.l = leaf
@@ -157,9 +162,12 @@ class RCTree:
             if I is not None:
                 # Add a key in the leaves dict pointing to leaf for all duplicate indices
                 J = np.flatnonzero(I == i)
+                # Get index label
+                J = self.index_labels[J]
                 for j in J:
                     self.leaves[j] = leaf
             else:
+                i = self.index_labels[i]
                 self.leaves[i] = leaf
         # If S2 does not contain an isolated point...
         if S2.sum() > 1:
@@ -169,6 +177,7 @@ class RCTree:
         else:
             # Create a leaf node from isolated point
             i = np.asscalar(np.flatnonzero(S2))
+            # TODO: Leaf label is broken
             leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :], n=N[i])
             # Link leaf node to parent
             branch.r = leaf
@@ -176,9 +185,12 @@ class RCTree:
             if I is not None:
                 # Add a key in the leaves dict pointing to leaf for all duplicate indices
                 J = np.flatnonzero(I == i)
+                # Get index label
+                J = self.index_labels[J]
                 for j in J:
                     self.leaves[j] = leaf
             else:
+                i = self.index_labels[i]
                 self.leaves[i] = leaf
         # Decrement depth as we traverse back up
         depth -= 1
