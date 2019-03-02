@@ -198,20 +198,7 @@ for index, point in enumerate(points):
 To install:
 
 ```shell
-$ git clone https://github.com/kLabUM/rrcf.git
-```
-
-Then:
-
-```shell
-$ cd rrcf
-$ python setup.py install
-```
-
-Or:
-```shell
-$ cd rrcf
-$ pip install .
+$ pip install rrcf
 ```
 
 Currently, only Python 3 is supported.
