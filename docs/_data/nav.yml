@@ -1,0 +1,15 @@
+toc:
+  - title: Theory
+    subfolderitems:
+      - page: Tree construction
+        url: /rrcf/tree-construction.html
+      - page: Insertion and deletion of points
+        url: /rrcf/insert-and-delete.html
+      - page: Anomaly scoring
+        url: /rrcf/anomaly-scoring.html
+  - title: Examples
+    subfolderitems:
+      - page: Batch detection
+        url: /rrcf/batch.html
+      - page: Streaming detection
+        url: /rrcf/streaming.html
