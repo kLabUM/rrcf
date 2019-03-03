@@ -12,7 +12,7 @@ point set. The algorithm is then recursively applied to each subset of remaining
 points on either side of the partition. The algorithm for constructing an RRCT
 tree is formally specified below:
 
-```
+$$
  \begin{align*}
  \text{Input: Point set S of size n and dimension d}\\
  \text{Generate a robust random cut tree on a point set S.}\\
@@ -28,4 +28,4 @@ tree is formally specified below:
  RRCT(S_1) \\
  RRCT(S_2) \\
  \end{align*}
-```
+$$
