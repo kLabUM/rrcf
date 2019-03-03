@@ -11,8 +11,10 @@ toc:
         url: /rrcf/anomaly-scoring.html
   - title: Basics
     subfolderitems:
-      - page: Random cut tree
-      - url: /rrcf/random-cut-tree.html
+      - page: RCTree data structure
+        url: /rrcf/random-cut-tree.html
+      - page: Modifying the RCTree
+        url: /rrcf/modifying-rctree.html
   - title: Examples
     subfolderitems:
       - page: Batch detection
