@@ -5,7 +5,7 @@ profile of ``normal'' data points, then finding the points that deviate from
 this profile using a distance or density metric (Liu 2012). We
 briefly survey some of these methods here:
 
-*One-class support vector machines (OC-SVM)*
+**One-class support vector machines (OC-SVM)**
 : This approach solves for the SVM decision boundary using a single class
 (Tax 2004). Data that are similar to the training data are classified as
 "normal", while data that are dissimilar are classified as outliers. While
