@@ -16,7 +16,9 @@ distribution \\(RRCF(S - \{p\})\\). As shown in the original paper by
 $P$ corresponding to point $p$, then removing its parent node, and then finally,
 short-circuiting the sibling of $P$ to the grandparent of $P$ (see algorithm below).
 
-![Algorithm 2](https://s3.us-east-2.amazonaws.com/mdbartos-img/rrcf/alg_2.png)
+![Algorithm 3](https://s3.us-east-2.amazonaws.com/mdbartos-img/rrcf/alg_3.png)
+
+## Insertion of points
 
 The *insertion*
 operation seeks to take a tree $T$ drawn from $RRCF(S)$ along with a point $p
@@ -31,4 +33,4 @@ else go to the right child) and then start again from step (i) with the subtree
 rooted at the new child node. Algorithm \ref{alg:3} in the Appendix shows the
 insertion algorithm in full detail.
 
-![Algorithm 3](https://s3.us-east-2.amazonaws.com/mdbartos-img/rrcf/alg_3.png)
+![Algorithm 4](https://s3.us-east-2.amazonaws.com/mdbartos-img/rrcf/alg_4.png)
