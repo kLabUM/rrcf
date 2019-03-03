@@ -1,6 +1,8 @@
 toc:
   - title: Theory
     subfolderitems:
+      - page: Related work and motivation
+        url: /rrcf/related-work.html
       - page: Tree construction
         url: /rrcf/tree-construction.html
       - page: Insertion and deletion of points
