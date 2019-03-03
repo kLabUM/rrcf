@@ -100,7 +100,7 @@ The branch class contains the following attributes.
 : Number of leaves under branch
 
 `b`
-: (numpy ndarray (2 x d))
+: (numpy ndarray \\((2 x d)\\))
 : Bounding box of points under branch
 
 ### Leaf
@@ -120,8 +120,8 @@ The leaf class contains the following attributes.
 : (Branch instance)
 : Pointer to parent
 
-`x`:
-: (numpy ndarray (1 x d))
+`x`
+: (numpy ndarray \\((1 x d)\\))
 : Pointer to original data point
 
 `n`
