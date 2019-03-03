@@ -19,6 +19,24 @@ X = np.random.randn(100, 2)
 tree = rrcf.RCTree(X)
 ```
 
+The resulting tree can be inspected simply by calling the instance object:
+
+```
+>>> tree
+>>>
+─+
+ ├───+
+ │   ├───+
+ │   │   ├──(0)
+ │   │   └───+
+ │   │       ├──(5)
+ │   │       └──(4)
+ │   └───+
+ │       ├──(2)
+ │       └──(3)
+ └──(1)
+```
+
 ### Instantiating an empty `RCTree`
 
 A random cut tree can also be instantiated with no points
@@ -82,8 +100,8 @@ The branch class contains the following attributes.
 : Number of leaves under branch
 
 `b`
-: (tuple)
-: Bounding box of points under branch (2 x d)
+: (numpy ndarray (2 x d))
+: Bounding box of points under branch
 
 ### Leaf
 
