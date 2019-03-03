@@ -14,14 +14,14 @@ and remove a point \\(p \in S\\), thereby producing a tree \\(T'\\) drawn from t
 distribution \\(RRCF(S - \{p\})\\). As shown in the original paper by
 Guha et al. (2016), this goal can be accomplished simply by removing the leaf
 \\(P\\) corresponding to point \\(p\\), then removing its parent node, and then finally,
-short-circuiting the sibling of \\(P\\) to the grandparent of $P$ (see pseudocode below).
+short-circuiting the sibling of \\(P\\) to the grandparent of \\(P\\) (see pseudocode below).
 
 ![Algorithm 3](https://s3.us-east-2.amazonaws.com/mdbartos-img/rrcf/alg_3.png)
 
 ## Insertion of points
 
 The *insertion*
-operation seeks to take a tree \\(T\\) drawn from $RRCF(S)$ along with a point \\(p
+operation seeks to take a tree \\(T\\) drawn from \\(RRCF(S)\\) along with a point \\(p
 \not \in S\\) and produce a tree \\(T'\\) drawn from \\(RRCF(S \cup \{p\})\\). The
 algorithm for insertion is considerably more involved: for each iteration, one
 must (i) generate a new random cut along a random dimension and check whether
