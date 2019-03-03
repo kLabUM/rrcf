@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # rrcf 🌲🌲🌲
 [![Build Status](https://travis-ci.org/kLabUM/rrcf.svg?branch=master)](https://travis-ci.org/kLabUM/rrcf) [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
 
@@ -139,7 +143,7 @@ for tree in forest:
 avg_codisp /= index
 ```
 
-![Image](https://github.com/kLabUM/rrcf/blob/master/resources/batch.png)
+![Image](https://raw.githubusercontent.com/kLabUM/rrcf/master/resources/batch.png)
 
 ## Streaming anomaly detection
 
@@ -191,7 +195,7 @@ for index, point in enumerate(points):
         avg_codisp[index] += tree.codisp(index) / num_trees
 ```
 
-![Image](https://github.com/kLabUM/rrcf/blob/master/resources/sine.png)
+![Image](https://raw.githubusercontent.com/kLabUM/rrcf/master/resources/sine.png)
 
 ## Installation
 
