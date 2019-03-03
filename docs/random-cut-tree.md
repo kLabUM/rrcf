@@ -1,6 +1,6 @@
 # Robust random cut trees
 
-The (robust) random cut tree is the core data structure of the `rrcf` library and is represented by the `RCTree` class.
+The (robust) random cut tree is the core data structure of the `rrcf` library and is represented by the `rrcf.RCTree` class.
 A (robust) random cut tree is a binary search tree that can be used to detect outliers in a point set.
 Points located nearer to the root of the tree are more likely to be outliers.
 
@@ -8,7 +8,7 @@ Points located nearer to the root of the tree are more likely to be outliers.
 
 ### Instantiating an `RCTree` from existing data
 
-A (robust) random cut tree can be instantiated from a point set \\(((n x d)\\),
+A (robust) random cut tree can be instantiated from a point set \\((n \times d)\\),
 where \\(n\\) is the number of points and \\(d\\) is the dimension of each point.
 
 ```python
@@ -27,6 +27,22 @@ A random cut tree can also be instantiated with no points
 tree = rrcf.RCTree()
 ```
 
+## Tree attributes
+
+The tree contains the following attributes:
+
+`root`
+: (Branch or Leaf instance)
+: Pointer to root of tree.
+
+`leaves`
+: (dict)
+: Dict containing pointers to all leaves in tree.
+
+`ndim`
+: (int)
+: Dimension of points in the tree
+
 ## Branches and Leaves
 
 The tree is composed of two types of nodes: branches and leaves.
@@ -38,39 +54,38 @@ Note that the root node will have no parent node.
 
 ### Branches
 
-A branch is a node that represents a partition (cut) in the point set.
+A branch is a node that represents a partition (cut) in the point set and is represented by the `rrcf.Branch` class.
 The branch class contains the following attributes.
 
-`q` (int)
+`q`
+: (int)
 : Dimension along which cut is performed.
 
-`p` (int)
+`p`
+: (int)
 : Value along which cut is performed.
 
-`l` (Branch or Leaf instance)
+`l`
+: (Branch or Leaf instance)
 : Pointer to left child.
 
-`r` (Branch or Leaf instance)
+`r`
+: (Branch or Leaf instance)
 : Pointer to right child
 
-`u` (Branch or Leaf instance or `None`)
+`u`
+: (Branch or Leaf instance or `None`)
 : Pointer to parent
 
-`n` (int)
+`n`
+: (int)
 : Number of leaves under branch
 
-`b` (tuple)
+`b`
+: (tuple)
 : Bounding box of points under branch (2 x d)
 
-## Tree attributes
+### Leaf
 
-The tree contains the following attributes:
-
-`root` (Branch or Leaf instance)
-: Pointer to root of tree.
-
-`leaves` (dict)
-: Dict containing pointers to all leaves in tree.
-
-`ndim` (int)
-: Dimension of points in the tree
+A leaf is a node that represents an individual point in the point set and is represented by the `rrcf.Leaf` class.
+The leaf class contains the following attributes.
