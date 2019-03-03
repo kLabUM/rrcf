@@ -11,11 +11,14 @@ Points located nearer to the root of the tree are more likely to be outliers.
 A (robust) random cut tree can be instantiated from a point set \\((n \times d)\\),
 where \\(n\\) is the number of points and \\(d\\) is the dimension of each point.
 
+In this case, we instantiate a tree from a collection of 6 two-dimensional points
+distributed according to the standard normal distribution.
+
 ```python
 import numpy as np
 import rrcf
 
-X = np.random.randn(100, 2)
+X = np.random.randn(6, 2)
 tree = rrcf.RCTree(X)
 ```
 
