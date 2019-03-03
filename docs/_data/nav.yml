@@ -9,6 +9,10 @@ toc:
         url: /rrcf/insert-and-delete.html
       - page: Anomaly scoring
         url: /rrcf/anomaly-scoring.html
+  - title: Basics
+    subfolderitems:
+      - page: Random cut tree
+      - url: /rrcf/random-cut-tree.html
   - title: Examples
     subfolderitems:
       - page: Batch detection
