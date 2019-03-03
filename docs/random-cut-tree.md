@@ -89,3 +89,27 @@ The branch class contains the following attributes.
 
 A leaf is a node that represents an individual point in the point set and is represented by the `rrcf.Leaf` class.
 The leaf class contains the following attributes.
+
+`i`
+: (int)
+: Index of leaf (user-specified)
+
+`d`
+: (int)
+: Depth of leaf in tree
+
+`u`
+: (Branch instance)
+: Pointer to parent
+
+`x`:
+: (numpy ndarray (1 x d))
+: Pointer to original data point
+
+`n`
+: (int)
+: Number of points in leaf (1 if no duplicates)
+
+`b`
+: (numpy ndarray (1 x d))
+: Bounding box of point (equivalent to original point)
