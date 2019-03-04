@@ -58,6 +58,8 @@ dimensions", meaning that partitions are often wasted on dimensions that
 provide relatively little information. Finally, while the tree depth shows
 empirical success in detecting outliers, there is little theoretical
 justification for using this metric as an anomaly score (Guha et al. 2016) [^6].
+The RRCF algorithm was devised to overcome these limitations by using a novel sketching
+algorithm (Guha et al. 2016) [^6].
 
 ## References
 
