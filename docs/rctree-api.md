@@ -21,6 +21,8 @@ This section enumerates all the methods of the `RCTree` class
 -----------|------|--------------
 | `leaf`     | `Leaf` instance | New leaf in tree |
 
+*Example:*
+
 ```python
 >>> tree = rrcf.RCTree()
 
@@ -47,6 +49,8 @@ Leaf(0)
 | Object | Type | Description |
 -----------|------|--------------
 | `leaf`     | `Leaf` instance | Deleted leaf |
+
+*Example:*
 
 ```python
 >>> tree = rrcf.RCTree()
@@ -78,6 +82,8 @@ Leaf(0)
 | Object | Type | Description |
 -----------|------|--------------
 | `leaf`     | `Leaf` instance | Leaf nearest to queried point in tree |
+
+*Example:*
 
 ```python
 # Create RCTree
@@ -111,6 +117,8 @@ Leaf(10)
 -----------|------|--------------
 | `bbox`     | numpy ndarray (2 x d) | Bounding box of all points underneath branch |
 
+*Example:*
+
 ```python
 >>> X = np.random.randn(10, 3)
 >>> tree = rrcf.RCTree(X)
@@ -137,6 +145,8 @@ array([[-0.8600458 , -1.69756215, -1.16659065],
 | Object | Type | Description |
 -----------|------|--------------
 | `duplicate` | `Leaf` instance or `None` |  If point is a duplicate, returns the leaf containing the point. If point is not a duplicate, return None. |
+
+*Example:*
 
 ```python
 # Create RCTree
@@ -172,6 +182,8 @@ Leaf(10)
 *Returns:*
 
 `None`
+
+*Example:*
 
 ```python
 # Use map_leaves to print leaves in postorder
@@ -209,6 +221,8 @@ Leaf(8)
 *Returns:*
 
 `None`
+
+*Example:*
 
 ```python
 # Use map_branches to collect all branches in a list
