@@ -23,7 +23,7 @@ This repository provides an open-source implementation of the RRCF algorithm and
 
 ## Documentation
 
-Read the docs [here 📖🧙](https://klabum.github.io/rrcf/).
+Read the docs [here 📖](https://klabum.github.io/rrcf/).
 
 ## Robust random cut trees
 
