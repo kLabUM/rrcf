@@ -202,15 +202,18 @@ avg_codisp = {}
 for index, point in enumerate(points):
     # For each tree in the forest...
     for tree in forest:
-        # If tree is above permitted size, drop the oldest point (FIFO)
+        # If tree is above permitted size...
         if len(tree.leaves) > tree_size:
+            # Drop the oldest point (FIFO)
             tree.forget_point(index - tree_size)
         # Insert the new point into the tree
         tree.insert_point(point, index=index)
-        # Compute codisp on the new point and take the average among all trees
+        # Compute codisp on the new point...
+        new_codisp = tree.codisp(index)
+        # And take the average over all trees
         if not index in avg_codisp:
             avg_codisp[index] = 0
-        avg_codisp[index] += tree.codisp(index) / num_trees
+        avg_codisp[index] += new_codisp / num_trees
 ```
 
 ![Image](https://raw.githubusercontent.com/kLabUM/rrcf/master/resources/sine.png)
