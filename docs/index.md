@@ -142,7 +142,7 @@ sample_size_range = (n // tree_size, tree_size)
 # Construct forest
 forest = []
 while len(forest) < num_trees:
-    # Select random subsets of points uniformly from point set
+    # Select random subsets of points uniformly
     ixs = np.random.choice(n, size=sample_size_range,
                            replace=False)
     # Add sampled trees to forest
