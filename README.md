@@ -21,6 +21,10 @@ The *Robust Random Cut Forest* (RRCF) algorithm is an ensemble method for detect
 
 This repository provides an open-source implementation of the RRCF algorithm and its core data structures for the purposes of facilitating experimentation and enabling future extensions of the RRCF algorithm.
 
+## Documentation
+
+Read the docs [here 📖🧙](https://klabum.github.io/rrcf/).
+
 ## Robust random cut trees
 
 A robust random cut tree is a binary search tree that can be used to detect outliers in a point set. Points located nearer to the root of the tree are more likely to be outliers.
