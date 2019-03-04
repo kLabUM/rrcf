@@ -94,7 +94,7 @@ this test case is to detect the 10 collusive outlier points in the center. From
 Figure 1, it can be seen that RRCF successfully detects the outliers, while
 One-Class SVM and Isolation Forest do not.
 
-![Figure 1: Detecting collusive outliers.](figure_1.png)
+![Figure 1: Detecting collusive outliers using One-Class SVM, Isolation Forest and RRCF (left to right).](figure_1.png)
 
 ## Test 2: Detection of event onset
 
@@ -112,7 +112,7 @@ Isolation Forest and RRCF with a forest size of 100 trees, and a tree size of
 256 points. From Figure 2, it can be seen that RRCF better detects the onset of
 the anomaly.
 
-![Figure 2: Detecting event onset.](figure.png)
+![Figure 2: Detecting event onset using Isolation Forest (center) and RRCF (bottom).](figure_2.png)
 
 # Acknowledgements
 
