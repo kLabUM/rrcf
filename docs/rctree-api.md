@@ -297,7 +297,8 @@ Leaf(8)
 >>> tree = RCTree(X)
 >>> branches = []
 >>> tree.map_branches(tree.root, 
-                      op=(lambda x, stack: stack.append(x)),
+                      op=(lambda x, stack: 
+                          stack.append(x)),
                       stack=branches)
 >>> branches
 
