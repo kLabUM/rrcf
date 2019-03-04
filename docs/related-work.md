@@ -61,14 +61,14 @@ justification for using this metric as an anomaly score (Guha 2016)[^6].
 
 ## References
 
-[^1] Liu, F. T., Ting, K. M., Zhou, Z.-H., 2012. Isolation-based anomaly detection. ACM Transactions onKnowledge Discovery from Data (TKDD) 6 (1), 3.
+[^1]: Liu, F. T., Ting, K. M., Zhou, Z.-H., 2012. Isolation-based anomaly detection. ACM Transactions on Knowledge Discovery from Data (TKDD) 6 (1), 3.
 
-[^2] Tax, D. M., Duin, R. P., 2004. Support vector data description. Machine learning 54 (1), 45–66.
+[^2]: Tax, D. M., Duin, R. P., 2004. Support vector data description. Machine learning 54 (1), 45–66.
 
-[^3] Rousseeuw, P. J., Driessen, K. V., 1999. A fast algorithm for the minimum covariance determinantestimator. Technometrics 41 (3), 212–223.
+[^3]: Rousseeuw, P. J., Driessen, K. V., 1999. A fast algorithm for the minimum covariance determinant estimator. Technometrics 41 (3), 212–223.
 
-[^4] Breunig, M. M., Kriegel, H.-P., Ng, R. T., Sander, J., May 2000. Lof: Identifying density-based localoutliers. SIGMOD Rec. 29 (2), 93–104.
+[^4]: Breunig, M. M., Kriegel, H.-P., Ng, R. T., Sander, J., May 2000. Lof: Identifying density-based local outliers. SIGMOD Rec. 29 (2), 93–104.
 
-[^5] Williams,  G.,  Baxter,  R.,  He,  H.,  Hawkins,  S.,  Gu,  L.,  2002.  A  comparative  study  of  rnn  foroutlier detection in data mining. In: Data Mining, 2002. ICDM 2003. Proceedings. 2002 IEEEInternational Conference on. IEEE, pp. 709–712.
+[^5]: Williams,  G.,  Baxter,  R.,  He,  H.,  Hawkins,  S.,  Gu,  L.,  2002.  A  comparative  study  of  RNN  for outlier detection in data mining. In: Data Mining, 2002. ICDM 2003. Proceedings. 2002 IEEE International Conference on. IEEE, pp. 709–712.
 
-[^6] Guha, S., Mishra, N., Roy, G., Schrijvers, O., 2016a. Robust random cut forest based anomalydetection on streams. In: International conference on machine learning. pp. 2712–2721.
+[^6]: Guha, S., Mishra, N., Roy, G., Schrijvers, O., 2016a. Robust random cut forest based anomaly detection on streams. In: International conference on machine learning. pp. 2712–2721.
