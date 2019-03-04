@@ -120,6 +120,41 @@ array([[-0.8600458 , -1.69756215, -1.16659065],
        [ 2.48455863,  1.02869042,  1.09414144]])
 ```
 
+---
+
+<b>`find_duplicate`</b>`(point, tolerance=None)`
+> If point is a duplicate of existing point in the tree, return the leaf containing the point, else return None.
+
+*Parameters:*
+
+| Argument | Type | Description |
+-----------|------|--------------
+| `point`     | numpy ndarray (1 x d) | Point to query in tree |
+| `tolerance`    | float      | Tolerance for determining whether or not point is a duplicate |
+
+*Returns:*
+
+| Object | Type | Description |
+-----------|------|--------------
+| `duplicate` | `Leaf` instance or `None` |  If point is a duplicate, returns the leaf containing the point. If point is not a duplicate, return None. |
+
+```python
+# Create RCTree
+>>> X = np.random.randn(10, 2)
+>>> tree = rrcf.RCTree(X)
+
+# Insert new point
+>>> new_point = np.array([4, 4])
+>>> tree.insert_point(new_point, index=10)
+
+# Search for duplicates
+>>> tree.find_duplicate((3, 3))
+
+>>> tree.find_duplicate((4, 4))
+
+Leaf(10)
+```
+
 ## Leaf and Branch operations
 
 <b>`map_leaves`</b>`(node, op=(lambda x: None), *args, **kwargs)`
