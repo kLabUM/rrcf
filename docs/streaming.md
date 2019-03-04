@@ -1,4 +1,8 @@
+# Streaming anomaly detection
+
 This example shows how the algorithm can be used to detect anomalies in streaming time series data.
+
+## Import modules and generate data
 
 ```python
 import numpy as np
@@ -13,7 +17,11 @@ T = 2*np.pi/100
 t = np.arange(n)
 sin = A*np.sin(T*t-phi*T) + center
 sin[235:255] = 80
+```
 
+# Construct random forest
+
+```python
 # Set tree parameters
 num_trees = 40
 shingle_size = 4
@@ -24,7 +32,11 @@ forest = []
 for _ in range(num_trees):
     tree = rrcf.RCTree()
     forest.append(tree)
-    
+```
+
+## Insert streaming points into tree and compute anomaly score
+
+```python
 # Use the "shingle" generator to create rolling window
 points = rrcf.shingle(sin, size=shingle_size)
 
