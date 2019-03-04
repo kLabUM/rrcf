@@ -9,6 +9,18 @@ detection on streams, in Proceedings of the 33rd International conference on mac
 learning, New York, NY, 2016 (pp. 2712-2721).
 ```
 
+## About
+
+The *Robust Random Cut Forest* (RRCF) algorithm is an ensemble method for detecting outliers in streaming data. RRCF offers a number of features that many competing anomaly detection algorithms lack. Specifically, RRCF:
+
+- Is designed to handle streaming data.
+- Performs well on high-dimensional data.
+- Reduces the influence of irrelevant dimensions.
+- Gracefully handles duplicates and near-duplicates that could otherwise mask the presence of outliers.
+- Features an anomaly-scoring algorithm with a clear underlying statistical meaning.
+
+This repository provides an open-source implementation of the RRCF algorithm and its core data structures for the purposes of facilitating experimentation and enabling future extensions of the RRCF algorithm.
+
 ## Robust random cut trees
 
 A robust random cut tree is a binary search tree that can be used to detect outliers in a point set. Points located nearer to the root of the tree are more likely to be outliers.
