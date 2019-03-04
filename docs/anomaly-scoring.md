@@ -24,7 +24,7 @@ where \\(x\\) is the point to be removed, \\(Z\\) is the point set, \\(T\\) is a
 and \\(f(y, Z, T)\\) the depth of point \\(y\\) in the tree \\(T\\) defined on point set
 \\(Z\\). It can be observed that the displacement associated with a point \\(x\\) is
 simply equal to the number of leaves in the subtree beneath the sibling node of
-\\(x\\) (Guha et al., 2016.
+\\(x\\) (Guha et al., 2016).
 
 ## Collusive displacement
 
