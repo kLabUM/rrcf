@@ -94,6 +94,32 @@ Leaf(0)
 Leaf(10)
 ```
 
+---
+
+<b>`get_bbox`</b>`(branch=None)`
+> Compute bounding box of all points underneath a given branch.
+
+*Parameters:*
+
+| Argument | Type | Description |
+-----------|------|--------------
+| `branch`    | `Branch` instance      | Branch to begin traversal (defaults to root) |
+
+*Returns:*
+
+| Object | Type | Description |
+-----------|------|--------------
+| `bbox`     | numpy ndarray (2 x d) | Bounding box of all points underneath branch |
+
+```python
+>>> X = np.random.randn(10, 3)
+>>> tree = rrcf.RCTree(X)
+>>> tree.get_bbox()
+
+array([[-0.8600458 , -1.69756215, -1.16659065],
+       [ 2.48455863,  1.02869042,  1.09414144]])
+```
+
 ## Leaf and Branch operations
 
 <b>`map_leaves`</b>`(node, op=(lambda x: None), *args, **kwargs)`
