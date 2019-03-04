@@ -211,7 +211,7 @@ for index, point in enumerate(points):
 
 ## Installation
 
-To install:
+Use `pip` to install:
 
 ```shell
 $ pip install rrcf
