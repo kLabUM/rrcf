@@ -61,4 +61,28 @@ for index, point in enumerate(points):
         avg_codisp[index] += new_codisp / num_trees
 ```
 
+## Plot result
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+fig, ax1 = plt.subplots(figsize=(10, 5))
+
+color = 'tab:red'
+ax1.set_ylabel('Data', color=color, size=14)
+ax1.plot(sin, color=color)
+ax1.tick_params(axis='y', labelcolor=color, labelsize=12)
+ax1.set_ylim(0,160)
+ax2 = ax1.twinx()
+color = 'tab:blue'
+ax2.set_ylabel('CoDisp', color=color, size=14)
+ax2.plot(pd.Series(avg_codisp).sort_index(), color=color)
+ax2.tick_params(axis='y', labelcolor=color, labelsize=12)
+ax2.grid('off')
+ax2.set_ylim(0, 160)
+plt.title('Sine wave with injected anomaly (red) and anomaly score (blue)', size=14)
+```
+
 ![Image](https://raw.githubusercontent.com/kLabUM/rrcf/master/resources/sine.png)
