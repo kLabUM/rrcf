@@ -165,6 +165,70 @@ array([[-0.8600458 , -1.69756215, -1.16659065],
 Leaf(10)
 ```
 
+## Anomaly scoring
+
+<b>`codisp`</b>`(leaf)`
+> Compute collusive displacement at leaf.
+
+*Parameters:*
+
+| Argument | Type | Description |
+-----------|------|--------------
+| `leaf`    | Any hashable type or `Leaf` instance      | Index of leaf or `Leaf` instance |
+
+*Returns:*
+
+| Object | Type | Description |
+-----------|------|--------------
+| `codisplacement`     | float | Collusive displacement if leaf is removed |
+
+*Example:*
+
+```python
+# Create RCTree
+>>> X = np.random.randn(100, 2)
+>>> tree = rrcf.RCTree(X)
+>>> new_point = np.array([4, 4])
+>>> tree.insert_point(new_point, index=100)
+
+# Compute collusive displacement
+>>> tree.codisp(100)
+
+31.667
+```
+
+---
+
+<b>`disp`</b>`(leaf)`
+> Compute displacement at leaf.
+
+*Parameters:*
+
+| Argument | Type | Description |
+-----------|------|--------------
+| `leaf`    | Any hashable type or `Leaf` instance      | Index of leaf or `Leaf` instance |
+
+*Returns:*
+
+| Object | Type | Description |
+-----------|------|--------------
+| `displacement`     | float | Displacement if leaf is removed |
+
+*Example:*
+
+```python
+# Create RCTree
+>>> X = np.random.randn(100, 2)
+>>> tree = rrcf.RCTree(X)
+>>> new_point = np.array([4, 4])
+>>> tree.insert_point(new_point, index=100)
+
+# Compute displacement
+>>> tree.disp(100)
+
+12
+```
+
 ## Leaf and Branch operations
 
 <b>`map_leaves`</b>`(node, op=(lambda x: None), *args, **kwargs)`
