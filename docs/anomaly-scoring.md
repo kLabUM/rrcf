@@ -2,7 +2,7 @@
 
 The anomaly score of a point is defined by its
 *collusive displacement*, which measures the change in model complexity
-incurred by inserting or deleting a given point \\(x\\).
+incurred by inserting or deleting a given point \\(x\\) (Guha et al. 2016a) [^1].
 
 ## Defining outliers by displacement
 
@@ -51,7 +51,7 @@ points \\(C \supseteq x\\) that maximizes the total displacement if all points i
 simultaneously removed. In theory, this involves searching over all subsets \\(C\\)
 containing \\(x\\), which is impractical. While the original paper states that
 CoDisp can be estimated efficiently by considering only "subtrees in the leaf
-to root path of \\(x\\)" (Guha et al., 2016b), it does not provide an explicit
+to root path of \\(x\\)" (Guha et al., 2016b) [^2], it does not provide an explicit
 algorithm for computing CoDisp. Thus, we propose an algorithm for
 estimating CoDisp. Starting at the leaf of interest, this algorithm traverses
 the leaf to root path, while at each step computing the number of leaves in the
@@ -61,3 +61,9 @@ subtree (equal to \\(Disp(C)\\)). The maximum ratio of these two quantities
 of \\(x\\). A formal description of this algorithm is given in pseudocode below:
 
 ![Algorithm 2](https://s3.us-east-2.amazonaws.com/mdbartos-img/rrcf/alg_2.png)
+
+## References
+
+[^1]: Guha, S., Mishra, N., Roy, G., Schrijvers, O., 2016a. Robust random cut forest based anomaly detection on streams. In: International conference on machine learning. pp. 2712–2721.
+
+[^2]: Guha, S., Mishra, N., Roy, G., Schrijvers, O., 2016b. Supporting Information for: Robust random cut forest based anomaly detection on streams. In: International conference on machine learning. pp. 2712–2721.
