@@ -13,11 +13,11 @@ authors:
   - name: Abhiram Mullapudi
     orcid: 0000-0000-0000-0000
     affiliation: 1
-  - name: Sara Troutman
-    orcid: 0000-0000-0000-0000
+  - name: Sara C. Troutman
+    orcid: 0000-0002-6809-7959
     affiliation: 1
 affiliations:
- - name: Department of Civil Engineering, University of Michigan
+ - name: Department of Civil and Environmental Engineering, University of Michigan
    index: 1
 date: 01 March 2019
 bibliography: paper.bib
