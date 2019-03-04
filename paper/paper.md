@@ -85,7 +85,7 @@ Existing anomaly detection approaches typically suffer from a few key
 
 Here, we validate a test case from the original RRCF paper involving two dense
 clusters of 3-dimensional points in which almost all the variation occurs in the
-first dimension. Consider two clusters consisting of 1000 points each
+first dimension [@guha_2016_robust]. Consider two clusters consisting of 1000 points each
 distributed according to $x_i \sim \mathcal{N}([5 \ 0 \ 0]^T, 0.01 \cdot I)$ for
 the first class and $x_i \sim \mathcal{N}([-5 \ 0 \ 0]^T, 0.01 \cdot I)$ for the
 second class. Add to this point set 10 collusive outlier points distributed
@@ -100,7 +100,7 @@ One-Class SVM and Isolation Forest do not.
 
 We validate another result from the original paper by showing that RRCF can
 effectively detect both the onset and offset of anomalies on streaming time
-series data. As in the original paper, we generate a sine wave from time $t \in
+series data [@guha_2016_robust]. As in the original paper, we generate a sine wave from time $t \in
 [0, 730]$, with period $T = \pi / 50$ and a phase offset of $\phi = 30$. An
 anomaly is then injected into the sine wave along the interval $t \in [235,
 255]$. Using a technique recommended by the original paper, we sample the data
@@ -109,8 +109,8 @@ passed over the data, and each consecutive windowed sequence is treated as an
 $\ell-$dimensional point (e.g. for a shingle of length 4, the sampled point at
 time $t$ will be $[x_{t-3}, \ x_{t-2}, \ x_{t-1}, \ x_t]^T$). We apply both
 Isolation Forest and RRCF with a forest size of 100 trees, and a tree size of
-256 points. From Figure 2, it can be seen that RRCF better detects the onset of
-the anomaly.
+256 points. From Figure 2, it can be seen that RRCF performs better than Isolation
+Forest at detecting the onset of the anomaly.
 
 ![Figure 2: Detecting event onset using Isolation Forest (center) and RRCF (bottom).](figure_2.png)
 
