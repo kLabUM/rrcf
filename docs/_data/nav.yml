@@ -17,6 +17,8 @@ toc:
         url: /rrcf/modifying-rctree.html
       - page: Measuring anomalies
         url: /rrcf/scoring-rctree.html
+      - page: API documentation
+        url: /rrcf/rctree-api.html
   - title: Examples
     subfolderitems:
       - page: Batch detection
