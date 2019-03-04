@@ -1,5 +1,5 @@
 ---
-title: 'rrcf: implementation of the Robust Random Cut Forest algorithm for anomaly detection on streams'
+title: 'rrcf: Implementation of the Robust Random Cut Forest algorithm for anomaly detection on streams'
 tags:
   - Python
   - outlier detection
