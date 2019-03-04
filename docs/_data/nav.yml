@@ -23,3 +23,5 @@ toc:
         url: /rrcf/batch.html
       - page: Streaming detection
         url: /rrcf/streaming.html
+      - page: Analyzing taxi data
+        url: /rrcf/taxi.html
