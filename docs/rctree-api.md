@@ -75,7 +75,7 @@ Leaf(0)
 
 | Argument | Type | Description |
 -----------|------|--------------
-| `point`     | numpy ndarray (1 x d) | Data point |
+| `point`     | numpy ndarray <br> (1 x d) | Data point |
 | `node`    | `Branch` instance      | Node to begin traversal (defaults to root) |
 
 *Returns:*
@@ -116,7 +116,7 @@ Leaf(10)
 
 | Object | Type | Description |
 -----------|------|--------------
-| `bbox`     | numpy ndarray (2 x d) | Bounding box of all points underneath branch |
+| `bbox`     | numpy ndarray <br> (2 x d) | Bounding box of all points underneath branch |
 
 *Example:*
 
@@ -139,7 +139,7 @@ array([[-0.8600458 , -1.69756215, -1.16659065],
 
 | Argument | Type | Description |
 -----------|------|--------------
-| `point`     | numpy ndarray (1 x d) | Point to query in tree |
+| `point`     | numpy ndarray <br> (1 x d) | Point to query in tree |
 | `tolerance`    | float      | Tolerance for determining whether or not point is a duplicate |
 
 *Returns:*
