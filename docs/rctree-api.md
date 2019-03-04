@@ -11,7 +11,7 @@ This section enumerates all the methods of the `RCTree` class
 
 | Argument | Type | Description |
 -----------|------|--------------
-| `point`     | numpy ndarray (1 x d) | Data point |
+| `point`     | numpy ndarray <br> (1 x d) | Data point |
 | `index`       | any hashable type | Identifier for new leaf in tree |
 | `tolerance`    | float      | Tolerance for determining duplicate points |
 
