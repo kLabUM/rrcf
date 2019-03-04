@@ -27,6 +27,38 @@ This section enumerates all the methods of the `RCTree` class
 # Insert a point
 >>> x = np.random.randn(2)
 >>> tree.insert_point(x, index=0)
+
+Leaf(0)
+```
+
+---
+
+<b>`forget_point`</b>`(index)`
+> Delete leaf from tree
+
+*Parameters:*
+
+| Argument | Type | Description |
+-----------|------|--------------
+| `index`       | any hashable type | Index of leaf in tree |
+
+*Returns:*
+
+| Object | Type | Description |
+-----------|------|--------------
+| `leaf`     | `Leaf` instance | Deleted leaf |
+
+```python
+>>> tree = rrcf.RCTree()
+
+# Insert a point
+>>> x = np.random.randn(2)
+>>> tree.insert_point(x, index=0)
+
+# Forget point
+>>> tree.forget_point(0)
+
+Leaf(0)
 ```
 
 ## Leaf and Branch operations
@@ -65,6 +97,8 @@ Leaf(7)
 Leaf(1)
 Leaf(8)
 ```
+
+---
 
 <b>`map_branches`</b>`(node, op=(lambda x: None), *args, **kwargs)`
 > Traverse tree recursively, calling operation given by op on branches
