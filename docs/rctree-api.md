@@ -53,6 +53,7 @@ Leaf(0)
 *Example:*
 
 ```python
+# Create empty RCTree
 >>> tree = rrcf.RCTree()
 
 # Insert a point
@@ -120,6 +121,7 @@ Leaf(10)
 *Example:*
 
 ```python
+# Create RCTree and compute bbox
 >>> X = np.random.randn(10, 3)
 >>> tree = rrcf.RCTree(X)
 >>> tree.get_bbox()
@@ -294,7 +296,8 @@ Leaf(8)
 >>> X = np.random.randn(10, 2)
 >>> tree = RCTree(X)
 >>> branches = []
->>> tree.map_branches(tree.root, op=(lambda x, stack: stack.append(x)),
+>>> tree.map_branches(tree.root, 
+                      op=(lambda x, stack: stack.append(x)),
                       stack=branches)
 >>> branches
 
