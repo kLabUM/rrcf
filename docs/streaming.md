@@ -19,7 +19,7 @@ sin = A*np.sin(T*t-phi*T) + center
 sin[235:255] = 80
 ```
 
-## Construct random forest
+## Construct forest of empty RCTrees
 
 ```python
 # Set tree parameters
