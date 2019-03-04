@@ -56,4 +56,27 @@ for tree in forest:
 avg_codisp /= index
 ```
 
+## Plot result
+
+```python
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+from matplotlib import colors
+
+threshold = avg_codisp.nlargest(n=10).min()
+
+fig = plt.figure(figsize=(12,4.5))
+ax = fig.add_subplot(121, projection='3d')
+sc = ax.scatter(X[:,0], X[:,1], X[:,2],
+                c=np.log(avg_codisp.sort_index().values),
+                cmap='gnuplot2')
+plt.title('log(CoDisp)')
+ax = fig.add_subplot(122, projection='3d')
+sc = ax.scatter(X[:,0], X[:,1], X[:,2],
+                linewidths=0.1, edgecolors='k',
+                c=(avg_codisp >= threshold).astype(float),
+                cmap='cool')
+plt.title('CoDisp above 99.5th percentile')
+```
+
 ![Image](https://raw.githubusercontent.com/kLabUM/rrcf/master/resources/batch.png)
