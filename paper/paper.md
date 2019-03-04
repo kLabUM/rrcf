@@ -62,7 +62,7 @@ Existing anomaly detection approaches typically suffer from a few key
  limitations that hinder their usefulness in real-time applications. First, many
  conventional methods are not suited for streaming data [@guha_2016_robust].
  Methods such as isolation forest [@liu_2012_isolation] and local outlier factor
- detection [@breunig_200_lof] must reconstruct the entire model when a new data
+ detection [@breunig_2000_lof] must reconstruct the entire model when a new data
  point is added, while methods such as replicator neural networks and one-class
  support vector machines must be retrained if the distribution of the input data
  changes over time. Second, many existing algorithms fail to detect anomalies in
@@ -94,7 +94,7 @@ this test case is to detect the 10 collusive outlier points in the center. From
 Figure 1, it can be seen that RRCF successfully detects the outliers, while
 One-Class SVM and Isolation Forest do not.
 
-![Figure 1: Detecting collusive outliers.](figure.png)
+![Figure 1: Detecting collusive outliers.](figure_1.png)
 
 ## Test 2: Detection of event onset
 
