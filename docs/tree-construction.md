@@ -15,4 +15,4 @@ tree is formally specified below:
 ![Algorithm 1](https://s3.us-east-2.amazonaws.com/mdbartos-img/rrcf/alg_1.png)
 
 ## References
-[^1]: Guha, S., Mishra, N., Roy, G., Schrijvers, O., 2016a. Robust random cut forest based anomaly detection on streams. In: International conference on machine learning. pp. 2712–2721.
+[^1]: Guha, S., Mishra, N., Roy, G., Schrijvers, O., 2016. Robust random cut forest based anomaly detection on streams. In: International conference on machine learning. pp. 2712–2721.
