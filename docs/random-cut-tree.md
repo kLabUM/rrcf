@@ -26,7 +26,7 @@ The resulting tree can be inspected simply by calling the instance object:
 
 ```
 >>> tree
->>>
+
 ─+
  ├───+
  │   ├───+
@@ -71,7 +71,7 @@ The tree is composed of two types of nodes: branches and leaves.
 - Branches are nodes with two children and at most one parent.
 - Leaves are nodes with no children and at most one parent.
 
-Note that the root node will have no parent node.
+Note that the root node will have no parent node (i.e. the parent will be `None`).
 
 ### Branches
 
@@ -103,7 +103,7 @@ The branch class contains the following attributes.
 : Number of leaves under branch
 
 `b`
-: (numpy ndarray \\((2 x d)\\))
+: (numpy ndarray \\((2 \times d)\\))
 : Bounding box of points under branch
 
 ### Leaf
@@ -124,7 +124,7 @@ The leaf class contains the following attributes.
 : Pointer to parent
 
 `x`
-: (numpy ndarray \\((1 x d)\\))
+: (numpy ndarray \\((1 \times d)\\))
 : Pointer to original data point
 
 `n`
@@ -132,5 +132,5 @@ The leaf class contains the following attributes.
 : Number of points in leaf (1 if no duplicates)
 
 `b`
-: (numpy ndarray (1 x d))
+: (numpy ndarray \\((1 \times d)\\))
 : Bounding box of point (equivalent to original point)
