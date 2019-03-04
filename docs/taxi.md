@@ -1,7 +1,7 @@
 # Anomaly detection on NYC Taxi Data
 
 In this example, we use RRCF to detect anomalies in the NYC taxi dataset
-(available as part of the Numenta anomaly benchmark [here](https://github.com/numenta/NAB/tree/master/data/realKnownCause).
+(available as part of the Numenta anomaly benchmark [here](https://github.com/numenta/NAB/tree/master/data/realKnownCause)).
 
 We also compare the results of RRCF to results obtained using Isolation Forest.
 
