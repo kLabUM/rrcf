@@ -40,15 +40,19 @@ class RCTree:
 
     Example:
     --------
-    X = np.random.randn(100,2)
-    tree = RCTree(X)
+    # Create RCTree
+    >>> X = np.random.randn(100,2)
+    >>> tree = RCTree(X)
+
     # Insert a point
-    x = np.random.randn(2)
-    tree.insert_point(x, index=100)
+    >>> x = np.random.randn(2)
+    >>> tree.insert_point(x, index=100)
+
     # Compute collusive displacement of new point (anomaly score)
-    tree.codisp(100)
+    >>> tree.codisp(100)
+
     # Remove point
-    tree.forget_point(100)
+    >>> tree.forget_point(100)
     """
     def __init__(self, X=None, index_labels=None, precision=9):
         # Initialize dict for leaves
@@ -205,6 +209,28 @@ class RCTree:
         op: function to call on each leaf
         *args: positional arguments to op
         **kwargs: keyword arguments to op
+
+        Returns:
+        --------
+        None
+
+        Example:
+        --------
+        # Use map_leaves to print leaves in postorder
+        >>> X = np.random.randn(10, 2)
+        >>> tree = RCTree(X)
+        >>> tree.map_leaves(tree.root, op=print)
+
+        Leaf(5)
+        Leaf(9)
+        Leaf(4)
+        Leaf(0)
+        Leaf(6)
+        Leaf(2)
+        Leaf(3)
+        Leaf(7)
+        Leaf(1)
+        Leaf(8)
         """
         if isinstance(node, Branch):
             if node.l:
@@ -224,6 +250,30 @@ class RCTree:
         op: function to call on each branch
         *args: positional arguments to op
         **kwargs: keyword arguments to op
+
+        Returns:
+        --------
+        None
+
+        Example:
+        --------
+        # Use map_branches to collect all branches in a list
+        >>> X = np.random.randn(10, 2)
+        >>> tree = RCTree(X)
+        >>> branches = []
+        >>> tree.map_branches(tree.root, op=(lambda x, stack: stack.append(x)),
+                            stack=branches)
+        >>> branches
+
+        [Branch(q=0, p=-0.53),
+        Branch(q=0, p=-0.35),
+        Branch(q=1, p=-0.67),
+        Branch(q=0, p=-0.15),
+        Branch(q=0, p=0.23),
+        Branch(q=1, p=0.29),
+        Branch(q=1, p=1.31),
+        Branch(q=0, p=0.62),
+        Branch(q=1, p=0.86)]
         """
         if isinstance(node, Branch):
             if node.l:
@@ -248,12 +298,15 @@ class RCTree:
 
         Example:
         --------
-        tree = RCTree()
+        # Create RCTree
+        >>> tree = RCTree()
+
         # Insert a point
-        x = np.random.randn(2)
-        tree.insert_point(x, index=0)
+        >>> x = np.random.randn(2)
+        >>> tree.insert_point(x, index=0)
+
         # Forget point
-        tree.forget_point(0)
+        >>> tree.forget_point(0)
         """
         try:
             # Get leaf from leaves dict
@@ -337,10 +390,12 @@ class RCTree:
 
         Example:
         --------
-        tree = RCTree()
+        # Create RCTree
+        >>> tree = RCTree()
+
         # Insert a point
-        x = np.random.randn(2)
-        tree.insert_point(x, index=0)
+        >>> x = np.random.randn(2)
+        >>> tree.insert_point(x, index=0)
         """
         if not isinstance(point, np.ndarray):
             point = np.asarray(point)
@@ -434,6 +489,21 @@ class RCTree:
         --------
         nearest: Leaf
                  Leaf nearest to queried point in the tree
+
+        Example:
+        --------
+        # Create RCTree
+        >>> X = np.random.randn(10, 2)
+        >>> tree = rrcf.RCTree(X)
+
+        # Insert new point
+        >>> new_point = np.array([4, 4])
+        >>> tree.insert_point(new_point, index=10)
+
+        # Query tree for point with added noise
+        >>> tree.query(new_point + 1e-5)
+
+        Leaf(10)
         """
         if not isinstance(point, np.ndarray):
             point = np.asarray(point)
@@ -454,6 +524,19 @@ class RCTree:
         --------
         displacement: int
                       Displacement if leaf is removed
+
+        Example:
+        --------
+        # Create RCTree
+        >>> X = np.random.randn(100, 2)
+        >>> tree = rrcf.RCTree(X)
+        >>> new_point = np.array([4, 4])
+        >>> tree.insert_point(new_point, index=100)
+
+        # Compute displacement
+        >>> tree.disp(100)
+
+        12
         """
         if not isinstance(leaf, Leaf):
             try:
@@ -485,6 +568,19 @@ class RCTree:
         --------
         codisplacement: float
                         Collusive displacement if leaf is removed.
+
+        Example:
+        --------
+        # Create RCTree
+        >>> X = np.random.randn(100, 2)
+        >>> tree = rrcf.RCTree(X)
+        >>> new_point = np.array([4, 4])
+        >>> tree.insert_point(new_point, index=100)
+
+        # Compute collusive displacement
+        >>> tree.codisp(100)
+
+        31.667
         """
         if not isinstance(leaf, Leaf):
             try:
@@ -525,6 +621,16 @@ class RCTree:
         --------
         bbox: np.ndarray (2 x d)
               Bounding box of all points underneath branch
+
+        Example:
+        --------
+        # Create RCTree and compute bbox
+        >>> X = np.random.randn(10, 3)
+        >>> tree = rrcf.RCTree(X)
+        >>> tree.get_bbox()
+
+        array([[-0.8600458 , -1.69756215, -1.16659065],
+               [ 2.48455863,  1.02869042,  1.09414144]])
         """
         if branch is None:
             branch = self.root
@@ -552,6 +658,23 @@ class RCTree:
         duplicate: Leaf or None
                    If point is a duplicate, returns the leaf containing the point.
                    If point is not a duplicate, return None.
+
+        Example:
+        --------
+        # Create RCTree
+        >>> X = np.random.randn(10, 2)
+        >>> tree = rrcf.RCTree(X)
+
+        # Insert new point
+        >>> new_point = np.array([4, 4])
+        >>> tree.insert_point(new_point, index=10)
+
+        # Search for duplicates
+        >>> tree.find_duplicate((3, 3))
+
+        >>> tree.find_duplicate((4, 4))
+
+        Leaf(10)
         """
         nearest = self.query(point)
         if tolerance is None:
@@ -697,7 +820,9 @@ class RCTree:
 
         Example:
         --------
-        _insert_point_cut(x_inital, bbox)
+        # Generate cut dimension and cut value
+        >>> _insert_point_cut(x_inital, bbox)
+
         (0, 0.9758881798109296)
         """
         # Generate the bounding box
