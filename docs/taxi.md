@@ -18,20 +18,29 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 
 # Read data
-taxi = pd.read_csv('../resources/nyc_taxi.csv', index_col=0)
+taxi = pd.read_csv('../resources/nyc_taxi.csv',
+                   index_col=0)
 taxi.index = pd.to_datetime(taxi.index)
 data = taxi['value'].astype(float).values
 
 # Create events
 events = {
-'independence_day' : ('2014-07-04 00:00:00', '2014-07-07 00:00:00'),
-'labor_day'        : ('2014-09-01 00:00:00', '2014-09-02 00:00:00'),
-'labor_day_parade' : ('2014-09-06 00:00:00', '2014-09-07 00:00:00'),
-'nyc_marathon'     : ('2014-11-02 00:00:00', '2014-11-03 00:00:00'),
-'thanksgiving'     : ('2014-11-27 00:00:00', '2014-11-28 00:00:00'),
-'christmas'        : ('2014-12-25 00:00:00', '2014-12-26 00:00:00'),
-'new_year'         : ('2015-01-01 00:00:00', '2015-01-02 00:00:00'),
-'blizzard'         : ('2015-01-26 00:00:00', '2015-01-28 00:00:00')
+'independence_day' : ('2014-07-04 00:00:00',
+                      '2014-07-07 00:00:00'),
+'labor_day'        : ('2014-09-01 00:00:00',
+                      '2014-09-02 00:00:00'),
+'labor_day_parade' : ('2014-09-06 00:00:00',
+                      '2014-09-07 00:00:00'),
+'nyc_marathon'     : ('2014-11-02 00:00:00',
+                      '2014-11-03 00:00:00'),
+'thanksgiving'     : ('2014-11-27 00:00:00',
+                      '2014-11-28 00:00:00'),
+'christmas'        : ('2014-12-25 00:00:00',
+                      '2014-12-26 00:00:00'),
+'new_year'         : ('2015-01-01 00:00:00',
+                      '2015-01-02 00:00:00'),
+'blizzard'         : ('2015-01-26 00:00:00',
+                      '2015-01-28 00:00:00')
 }
 taxi['event'] = np.zeros(len(taxi))
 for event, duration in events.items():
@@ -81,15 +90,17 @@ avg_codisp.index = taxi.iloc[(shingle_size - 1):].index
 For comparison, we also run the Isolation Forest algorithm, as implemented in scikit-learn.
 
 ```python
-```python
-IF = IsolationForest(n_estimators = num_trees,
-                     contamination = taxi['event'].sum()/len(taxi),
-                     behaviour = 'new',
+contamination = taxi['event'].sum()/len(taxi)
+IF = IsolationForest(n_estimators=num_trees,
+                     contamination=contamination,
+                     behaviour='new',
                      random_state=0)
 IF.fit(points)
 if_scores = IF.score_samples(points)
 if_scores = pd.Series(-if_scores,
-                      index=taxi.iloc[(shingle_size - 1):].index)
+                      index=(taxi
+                             .iloc[(shingle_size - 1):]
+                             .index))
 ```
 
 ## Plotting the results
@@ -102,21 +113,26 @@ if_scores = ((if_scores - if_scores.min())
               / (if_scores.max() - if_scores.min()))
               
 fig, ax = plt.subplots(2, figsize=(10, 6))
-(taxi['value'] / 1000).plot(ax=ax[0], color='0.5', alpha=0.8)
-if_scores.plot(ax=ax[1], color='#7EBDE6', alpha=0.8, label='IF')
-avg_codisp.plot(ax=ax[1], color='#E8685D', alpha=0.8, label='RRCF')
+(taxi['value'] / 1000).plot(ax=ax[0], color='0.5',
+                            alpha=0.8)
+if_scores.plot(ax=ax[1], color='#7EBDE6', alpha=0.8,
+               label='IF')
+avg_codisp.plot(ax=ax[1], color='#E8685D', alpha=0.8,
+                label='RRCF')
 ax[1].legend(frameon=True, loc=2, fontsize=12)
 
 for event, duration in events.items():
     start, end = duration
-    ax[0].axvspan(start, end, alpha=0.3, color='springgreen')
+    ax[0].axvspan(start, end, alpha=0.3,
+                  color='springgreen')
 
 ax[0].set_xlabel('')
 ax[1].set_xlabel('')
 
 ax[0].set_ylabel('Taxi passengers (thousands)', size=13)
 ax[1].set_ylabel('Normalized Anomaly Score', size=13)
-ax[0].set_title('Anomaly detection on NYC Taxi data', size=14)
+ax[0].set_title('Anomaly detection on NYC Taxi data',
+                size=14)
 
 ax[0].xaxis.set_ticklabels([])
 
