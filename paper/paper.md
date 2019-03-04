@@ -8,7 +8,7 @@ tags:
   - random forests
 authors:
   - name: Matthew Bartos
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0001-6421-222X
     affiliation: 1
   - name: Abhiram Mullapudi
     orcid: 0000-0001-8141-3621
@@ -19,7 +19,7 @@ authors:
 affiliations:
  - name: Department of Civil and Environmental Engineering, University of Michigan
    index: 1
-date: 01 March 2019
+date: 04 March 2019
 bibliography: paper.bib
 ---
 
