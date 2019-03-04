@@ -61,6 +61,39 @@ Leaf(0)
 Leaf(0)
 ```
 
+## Getting tree info
+
+<b>`query`</b>`(point, node=None)`
+> Search for leaf nearest to point
+
+*Parameters:*
+
+| Argument | Type | Description |
+-----------|------|--------------
+| `point`     | numpy ndarray (1 x d) | Data point |
+| `node`    | `Branch` instance      | Node to begin traversal (defaults to root) |
+
+*Returns:*
+
+| Object | Type | Description |
+-----------|------|--------------
+| `leaf`     | `Leaf` instance | Leaf nearest to queried point in tree |
+
+```python
+# Create RCTree
+>>> X = np.random.randn(10, 2)
+>>> tree = rrcf.RCTree(X)
+
+# Insert new point
+>>> new_point = np.array([4, 4])
+>>> tree.insert_point(new_point, index=10)
+
+# Query tree for point with added noise
+>>> tree.query(new_point + 1e-5)
+
+Leaf(10)
+```
+
 ## Leaf and Branch operations
 
 <b>`map_leaves`</b>`(node, op=(lambda x: None), *args, **kwargs)`
