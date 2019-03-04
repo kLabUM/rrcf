@@ -199,7 +199,7 @@ Leaf(10)
 
 ---
 
-<b>`codisp`</b>`(leaf)`
+<b>`disp`</b>`(leaf)`
 > Compute displacement at leaf.
 
 *Parameters:*
