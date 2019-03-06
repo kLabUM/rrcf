@@ -1,0 +1,29 @@
+toc:
+  - title: Theory
+    subfolderitems:
+      - page: Related work and motivation
+        url: /rrcf/related-work.html
+      - page: Tree construction
+        url: /rrcf/tree-construction.html
+      - page: Insertion and deletion of points
+        url: /rrcf/insert-and-delete.html
+      - page: Anomaly scoring
+        url: /rrcf/anomaly-scoring.html
+  - title: Basics
+    subfolderitems:
+      - page: RCTree data structure
+        url: /rrcf/random-cut-tree.html
+      - page: Modifying the RCTree
+        url: /rrcf/modifying-rctree.html
+      - page: Measuring anomalies
+        url: /rrcf/scoring-rctree.html
+      - page: API documentation
+        url: /rrcf/rctree-api.html
+  - title: Examples
+    subfolderitems:
+      - page: Batch detection
+        url: /rrcf/batch.html
+      - page: Streaming detection
+        url: /rrcf/streaming.html
+      - page: Analyzing taxi data
+        url: /rrcf/taxi.html

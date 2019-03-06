@@ -1,2 +1,3 @@
 from rrcf.rrcf import *
-__version__ = "0.1"
+from rrcf.shingle import shingle
+__version__ = "0.2"
