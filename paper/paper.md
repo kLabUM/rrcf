@@ -66,7 +66,7 @@ Existing anomaly detection approaches typically suffer from a few key
  point is added, while methods such as replicator neural networks [@williams_2002_comparative] and one-class
  support vector machines [@tax_2004_support] must be retrained if the distribution of the input data
  changes over time. Second, many existing algorithms fail to detect anomalies in
- the presence of duplicates or near-duplicates--a phenomenon known as "outlier
+ the presence of duplicates or near-duplicates---a phenomenon known as "outlier
  masking" [@guha_2016_robust]. Finally, existing algorithms often struggle to
  detect outliers in high-dimensional data, especially in the presence of
  "irrelevant dimensions" that offer little relevant information to the outlier
