@@ -7,7 +7,7 @@ tags:
   - ensemble methods
   - random forests
 authors:
-  - name: Matthew Bartos
+  - name: Matthew D. Bartos
     orcid: 0000-0001-6421-222X
     affiliation: 1
   - name: Abhiram Mullapudi
@@ -26,7 +26,7 @@ bibliography: paper.bib
 # Summary
 
 In this paper, we present the first open-source implementation of the *robust
-random cut forest* (RRCF) algorithm--an unsupervised ensemble method for anomaly
+random cut forest* (RRCF) algorithm---an unsupervised ensemble method for anomaly
 detection on streaming data [@guha_2016_robust]. RRCF offers a number of features that many
 competing anomaly detection algorithms lack. Specifically, RRCF:
 
@@ -47,7 +47,7 @@ purposes of facilitating experimentation and enabling future extensions.
 Anomaly detection is an important unsupervised learning problem with economic
 and social implications in a variety of fields. In finance, online anomaly
 detection algorithms are used to alert customers to potentially fraudulent
-credit card transactions [@aleskerov_1997_cardwatch, @liu_2012_isolation]. In web
+credit card transactions [@aleskerov_1997_cardwatch]. In web
 infrastructure, anomaly detection algorithms facilitate improved intrusion
 detection [@lazarevic_2003_comparative], and can be used to flag and deflect malicious IPs
 during distributed denial of service (DDoS) attacks [@mirkovic_2004_taxonomy]. With
@@ -63,10 +63,10 @@ Existing anomaly detection approaches typically suffer from a few key
  conventional methods are not suited for streaming data [@guha_2016_robust].
  Methods such as isolation forest [@liu_2012_isolation] and local outlier factor
  detection [@breunig_2000_lof] must reconstruct the entire model when a new data
- point is added, while methods such as replicator neural networks and one-class
- support vector machines must be retrained if the distribution of the input data
+ point is added, while methods such as replicator neural networks [@williams_2002_comparative] and one-class
+ support vector machines [@tax_2004_support] must be retrained if the distribution of the input data
  changes over time. Second, many existing algorithms fail to detect anomalies in
- the presence of duplicates or near-duplicates--a phenomenon known as "outlier
+ the presence of duplicates or near-duplicates---a phenomenon known as "outlier
  masking" [@guha_2016_robust]. Finally, existing algorithms often struggle to
  detect outliers in high-dimensional data, especially in the presence of
  "irrelevant dimensions" that offer little relevant information to the outlier

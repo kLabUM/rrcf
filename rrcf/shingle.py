@@ -1,6 +1,7 @@
 from collections import deque
 import numpy as np
 
+
 def shingle(sequence, size):
     """
     Generator that yields shingles (a rolling window) of a given size.

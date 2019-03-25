@@ -218,3 +218,7 @@ $ pip install rrcf
 ```
 
 Currently, only Python 3 is supported.
+
+## Contributing
+
+To contribute, submit a pull request to the `dev` branch.

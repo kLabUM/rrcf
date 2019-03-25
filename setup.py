@@ -12,4 +12,4 @@ setup(name='rrcf',
       install_requires=[
           'numpy'
       ]
-     )
+      )
