@@ -1,5 +1,5 @@
 # rrcf 🌲🌲🌲
-[![Build Status](https://travis-ci.org/kLabUM/rrcf.svg?branch=master)](https://travis-ci.org/kLabUM/rrcf) [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
+[![Build Status](https://travis-ci.org/kLabUM/rrcf.svg?branch=master)](https://travis-ci.org/kLabUM/rrcf) [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/) ![GitHub](https://img.shields.io/github/license/kLabUM/rrcf.svg)
 
 Implementation of the *Robust Random Cut Forest Algorithm* for anomaly detection by [Guha et al. (2016)](http://proceedings.mlr.press/v48/guha16.pdf).
 
@@ -24,6 +24,29 @@ This repository provides an open-source implementation of the RRCF algorithm and
 ## Documentation
 
 Read the docs [here 📖](https://klabum.github.io/rrcf/).
+
+## Installation
+
+Use `pip` to install `rrcf` via pypi:
+
+```shell
+$ pip install rrcf
+```
+
+Currently, only Python 3 is supported.
+
+### Dependencies
+
+The following dependencies are *required* to install and use `rrcf`:
+
+- [numpy](http://www.numpy.org/)
+
+The following *optional* dependencies are required to run the examples shown in the documentation:
+
+- [pandas](https://pandas.pydata.org/)
+- [scipy](https://www.scipy.org/)
+- [scikit-learn](https://scikit-learn.org/stable/)
+- [matplotlib](https://matplotlib.org/)
 
 ## Robust random cut trees
 
@@ -208,16 +231,6 @@ for index, point in enumerate(points):
 ```
 
 ![Image](https://github.com/kLabUM/rrcf/blob/master/resources/sine.png)
-
-## Installation
-
-Use `pip` to install:
-
-```shell
-$ pip install rrcf
-```
-
-Currently, only Python 3 is supported.
 
 ## Contributing
 
