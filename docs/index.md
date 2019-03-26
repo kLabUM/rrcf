@@ -3,7 +3,7 @@ layout: default
 ---
 
 # rrcf 🌲🌲🌲
-[![Build Status](https://travis-ci.org/kLabUM/rrcf.svg?branch=master)](https://travis-ci.org/kLabUM/rrcf) [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
+[![Build Status](https://travis-ci.org/kLabUM/rrcf.svg?branch=master)](https://travis-ci.org/kLabUM/rrcf) [![Coverage Status](https://coveralls.io/repos/github/kLabUM/rrcf/badge.svg?branch=master)](https://coveralls.io/github/kLabUM/rrcf?branch=master) [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/) ![GitHub](https://img.shields.io/github/license/kLabUM/rrcf.svg)
 
 Implementation of the *Robust Random Cut Forest Algorithm* for anomaly detection by [Guha et al. (2016)](http://proceedings.mlr.press/v48/guha16.pdf).
 
@@ -25,6 +25,35 @@ The *Robust Random Cut Forest* (RRCF) algorithm is an ensemble method for detect
 - Features an anomaly-scoring algorithm with a clear underlying statistical meaning.
 
 This repository provides an open-source implementation of the RRCF algorithm and its core data structures for the purposes of facilitating experimentation and enabling future extensions of the RRCF algorithm.
+
+## Documentation
+
+Read the docs [here 📖](https://klabum.github.io/rrcf/).
+
+## Installation
+
+Use `pip` to install `rrcf` via pypi:
+
+```shell
+$ pip install rrcf
+```
+
+Currently, only Python 3 is supported.
+
+### Dependencies
+
+The following dependencies are *required* to install and use `rrcf`:
+
+- [numpy](http://www.numpy.org/) (>= 1.15)
+
+The following *optional* dependencies are required to run the examples shown in the documentation:
+
+- [pandas](https://pandas.pydata.org/) (>= 0.23)
+- [scipy](https://www.scipy.org/) (>= 1.2)
+- [scikit-learn](https://scikit-learn.org/stable/) (>= 0.20)
+- [matplotlib](https://matplotlib.org/) (>= 3.0)
+
+Listed version numbers have been tested and are known to work (this does not necessarily preclude older versions).
 
 ## Robust random cut trees
 
@@ -218,12 +247,38 @@ for index, point in enumerate(points):
 
 ![Image](https://raw.githubusercontent.com/kLabUM/rrcf/master/resources/sine.png)
 
-## Installation
+## Contributing
 
-To install:
+We welcome contributions to the `rrcf` repo. To contribute, submit a [pull request](https://help.github.com/en/articles/about-pull-requests) to the `dev` branch.
 
-```shell
-$ pip install rrcf
+#### Types of contributions
+
+Some suggested types of contributions include:
+
+- Bug fixes
+- Documentation improvements
+- Performance enhancements
+- Extensions to the algorithm
+
+Check the issue tracker for any specific issues that need help. If you encounter a problem using `rrcf`, or have an idea for an extension, feel free to raise an issue.
+
+#### Guidelines for contributors
+
+Please consider the following guidelines when contributing to the codebase:
+
+- Ensure that any new methods, functions or classes include docstrings. Docstrings should include a description of the code, as well as descriptions of the inputs (arguments) and outputs (returns). Providing an example use case is recommended (see existing methods for examples).
+- Write unit tests for any new code and ensure that all tests are passing with no warnings. Please ensure that overall code coverage does not drop below 80%.
+
+#### Running unit tests
+
+To run unit tests, first ensure that `pytest` and `pytest-cov` are installed:
+
+```
+$ pip install pytest pytest-cov
 ```
 
-Currently, only Python 3 is supported.
+To run the tests, navigate to the root directory of the repo and run:
+
+```
+$ pytest --cov=rrcf/
+```
