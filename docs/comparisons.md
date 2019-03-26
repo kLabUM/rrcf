@@ -150,7 +150,6 @@ for d in range(len(data)):
                   transform=plt.gca().transAxes, size=15,
                   horizontalalignment='right')
     plot_num += 1
-plt.savefig('method_comparison.png', bbox_inches='tight')
 ```
 
 ![Comparison](https://s3.us-east-2.amazonaws.com/mdbartos-img/rrcf/method_comparison.png)
