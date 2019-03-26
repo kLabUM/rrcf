@@ -236,4 +236,36 @@ for index, point in enumerate(points):
 
 ## Contributing
 
-To contribute, submit a pull request to the `dev` branch.
+We welcome contributions to the `rrcf` repo. To contribute, submit a [pull request](https://help.github.com/en/articles/about-pull-requests) to the `dev` branch.
+
+#### Types of contributions
+
+Some suggested types of contributions include:
+
+- Bug fixes
+- Documentation improvements
+- Performance enhancements
+- Extensions to the algorithm
+
+Check the issue tracker for any specific issues that need help. If you encounter a problem using `rrcf`, or have an idea for an extension, feel free to raise an issue.
+
+#### Guidelines for contributors
+
+Please consider the following guidelines when contributing to the codebase:
+
+- Ensure that any new methods, functions or classes include docstrings. Docstrings should include a description of the code, as well as descriptions of the inputs (arguments) and outputs (returns). Providing an example use case is recommended (see existing methods for examples).
+- Write unit tests for any new code and ensure that all tests are passing with no warnings. Please ensure that overall code coverage does not drop below 80%.
+
+#### Running unit tests
+
+To run unit tests, first ensure that `pytest` and `pytest-cov` are installed:
+
+```
+$ pip install pytest pytest-cov
+```
+
+To run the tests, navigate to the root directory of the repo and run:
+
+```
+$ pytest --cov=rrcf/
+```
