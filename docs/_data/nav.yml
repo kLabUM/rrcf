@@ -19,6 +19,8 @@ toc:
         url: /rrcf/scoring-rctree.html
       - page: API documentation
         url: /rrcf/rctree-api.html
+      - page: Caveats and gotchas
+        url: /rrcf/caveats.html
   - title: Examples
     subfolderitems:
       - page: Batch detection
