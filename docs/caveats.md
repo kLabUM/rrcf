@@ -2,7 +2,7 @@
 
 ## Scaling of dimensions
 
-The RRCF algorithm considers the relative scale of each dimension when constructing the robust random cut trees. This means that dimensions with less variability (on an absolute scale) will affect the outlier score of a point less than dimensions with higher variability.
+The RRCF algorithm considers the relative scale of each dimension when constructing robust random cut trees. This means that dimensions with less variability (on an absolute scale) will affect the outlier score of a point less than dimensions with higher variability.
 
 This consideration is important to remember if each dimension represents a different categorical property or is measured with a different set of units. Consider, for example the following dataset.
 
@@ -17,7 +17,7 @@ In this case, `Weight` will influence the outlier score most, because the range 
 
 In cases where each column is measured in different units, or measures a different type of quantity, it may be necessary to scale each column before constructing the random cut tree. For example, min-max scaling each column between zero and one yields:
 
-| Person      | Height (in)  | Weight (lb)   | Age (yr)    | 
+| Person      | Height (-)   | Weight (-)    | Age (-)     | 
 | ------------| ------------ | ------------- | ----------- |
 | Alice       | 0.48         | 0.15          | 0.15        |
 | Bob         | 0.81         | 1.0           | 0.25        |
