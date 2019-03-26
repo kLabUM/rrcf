@@ -9,6 +9,6 @@ install:
   - pip install coveralls
 # command to run tests
 script:
-  - pytest --cov=pysheds/
+  - pytest --cov=rrcf/
 after_success:
   - coveralls

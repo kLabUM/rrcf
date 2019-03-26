@@ -5,7 +5,11 @@ np.random.seed(0)
 n = 100
 d = 3
 X = np.random.randn(n, d)
+Z = np.copy(X)
+Z[90:, :] = 1
+
 tree = rrcf.RCTree(X)
+duplicate_tree = rrcf.RCTree(Z)
 
 deck = np.arange(n, dtype=int)
 np.random.shuffle(deck)
@@ -22,6 +26,16 @@ def test_batch():
         assert (leafcount == branch.n)
         bbox = tree.get_bbox(branch)
         assert (bbox == branch.b).all()
+
+def test_codisp():
+    for i in range(100):
+        codisp = tree.codisp(i)
+        assert codisp > 0
+
+def test_disp():
+    for i in range(100):
+        disp = tree.disp(i)
+        assert disp > 0
 
 def test_forget_batch():
     # Check stored bounding boxes and leaf counts after forgetting points
@@ -71,3 +85,46 @@ def test_insert_batch():
                 print('Computed:\n', bbox)
                 print('Stored:\n', branch.b)
                 raise
+
+def test_batch_with_duplicates():
+    # Instantiate tree with 10 duplicates
+    leafcount = duplicate_tree._count_leaves(tree.root)
+    assert (leafcount == n)
+    for i in range(90, 100):
+        try:
+            assert duplicate_tree.leaves[i].n == 10
+        except:
+            print(i)
+            print(duplicate_tree.leaves[i].n)
+            raise
+
+def test_insert_duplicate():
+    # Insert duplicate point
+    point = (1., 1., 1.)
+    leaf = duplicate_tree.insert_point(point, index=100)
+    assert leaf.n == 11
+    for i in range(90, 100):
+        try:
+            assert duplicate_tree.leaves[i].n == 11
+        except:
+            print(i)
+            print(duplicate_tree.leaves[i].n)
+            raise
+
+def test_find_duplicate():
+    # Find duplicate point
+    point = (1, 1, 1)
+    duplicate = duplicate_tree.find_duplicate(point)
+    assert duplicate is not None
+
+def test_forget_duplicate():
+    # Forget duplicate point
+    leaf = duplicate_tree.forget_point(100)
+    for i in range(90, 100):
+        assert duplicate_tree.leaves[i].n == 10
+
+def test_shingle():
+    shingle = rrcf.shingle(X, 3)
+    step_0 = next(shingle)
+    step_1 = next(shingle)
+    assert (step_0[1] == step_1[0]).all()
