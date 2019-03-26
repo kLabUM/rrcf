@@ -27,3 +27,7 @@ toc:
         url: /rrcf/streaming.html
       - page: Analyzing taxi data
         url: /rrcf/taxi.html
+      - page: Classification
+        url: /rrcf/classification.html
+      - page: Comparison of methods
+        url: /rrcf/comparisons.html
