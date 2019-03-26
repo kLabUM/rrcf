@@ -161,7 +161,6 @@ class RCTree:
         else:
             # Create a leaf node from isolated point
             i = np.asscalar(np.flatnonzero(S1))
-            # TODO: Leaf label is broken
             leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :], n=N[i])
             # Link leaf node to parent
             branch.l = leaf
@@ -184,7 +183,6 @@ class RCTree:
         else:
             # Create a leaf node from isolated point
             i = np.asscalar(np.flatnonzero(S2))
-            # TODO: Leaf label is broken
             leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :], n=N[i])
             # Link leaf node to parent
             branch.r = leaf
@@ -431,11 +429,9 @@ class RCTree:
         parent = node.u
         maxdepth = max([leaf.d for leaf in self.leaves.values()])
         depth = 0
-        # TODO: Check correctness of maxdepth + 1
         for _ in range(maxdepth + 1):
             bbox = node.b
             cut_dimension, cut = self._insert_point_cut(point, bbox)
-            # TODO: Should this be >= or >?
             if cut <= bbox[0, cut_dimension]:
                 leaf = Leaf(x=point, i=index, d=depth)
                 branch = Branch(q=cut_dimension, p=cut, l=leaf, r=node,
