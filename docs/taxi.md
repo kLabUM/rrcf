@@ -1,13 +1,13 @@
 # Anomaly detection on NYC Taxi Data
 
 In this example, we use RRCF to detect anomalies in the NYC taxi dataset
-(available as part of the Numenta anomaly benchmark [here](https://github.com/numenta/NAB/tree/master/data/realKnownCause)).
+(available as part of the Numenta anomaly benchmark [here](https://github.com/numenta/NAB/tree/master/data/realKnownCause)). This dataset is also available in the `/resources` directory in the `rrcf` repo.
 
 We also compare the results of RRCF to results obtained using Isolation Forest.
 
 ## Loading and labeling the data
 
-First, we load the data and add labels to known anomaly events.
+First, we load the data and add labels to known anomaly events. Note that the `nyc_taxi.csv` dataset must be available in the current directory.
 
 ```python
 import numpy as np
@@ -18,7 +18,7 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 
 # Read data
-taxi = pd.read_csv('../resources/nyc_taxi.csv',
+taxi = pd.read_csv('nyc_taxi.csv',
                    index_col=0)
 taxi.index = pd.to_datetime(taxi.index)
 data = taxi['value'].astype(float).values

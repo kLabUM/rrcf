@@ -99,7 +99,7 @@ plt.tight_layout()
 
 ## Test 2: Classification using nuclear particle data
 
-In this example, we will classify points from a real-world nuclear particle energy dataset.
+In this example, we will classify points from a real-world nuclear particle energy dataset. This dataset is available in the `/resources` directory in the `rrcf` repo.
 
 #### Load and plot original data
 
