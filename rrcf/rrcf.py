@@ -56,9 +56,15 @@ class RCTree:
     >>> tree.forget_point(100)
     """
 
-    def __init__(self, X=None, index_labels=None, precision=9, seed=42):
+    def __init__(self, X=None, index_labels=None, precision=9, 
+                 random_state=None):
         # Random number generation with provided seed
-        self.rng = np.random.RandomState(seed)
+        if isinstance(random_state, int):
+            self.rng = np.random.RandomState(random_state)
+        elif isinstance(random_state, np.random.RandomState):
+            self.rng = random_state
+        else:
+            self.rng = np.random
         # Initialize dict for leaves
         self.leaves = {}
         # Initialize tree root
