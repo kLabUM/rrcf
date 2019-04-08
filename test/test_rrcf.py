@@ -11,6 +11,9 @@ Z[90:, :] = 1
 tree = rrcf.RCTree(X)
 duplicate_tree = rrcf.RCTree(Z)
 
+tree_seeded = rrcf.RCTree(random_state=0)
+duplicate_tree_seeded = rrcf.RCTree(random_state=np.random.RandomState(0))
+
 deck = np.arange(n, dtype=int)
 np.random.shuffle(deck)
 indexes = deck[:5]
@@ -128,3 +131,11 @@ def test_shingle():
     step_0 = next(shingle)
     step_1 = next(shingle)
     assert (step_0[1] == step_1[0]).all()
+
+def test_random_state():
+    # The two trees should have the exact same random-cuts
+    points = np.random.uniform(size=(100, 5))
+    for idx, point in enumerate(points):
+        tree_seeded.insert_point(point, idx)
+        duplicate_tree_seeded.insert_point(point, idx)
+    assert str(tree_seeded) == str(duplicate_tree_seeded)
