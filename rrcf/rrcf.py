@@ -14,6 +14,10 @@ class RCTree:
     X: np.ndarray (n x d) (optional)
        Array containing n data points, each with dimension d.
        If no data provided, an empty tree is created.
+    random_state: int, RandomState instance or None (optional) (default=None)
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used by np.random.
 
     Attributes:
     -----------
@@ -56,7 +60,15 @@ class RCTree:
     >>> tree.forget_point(100)
     """
 
-    def __init__(self, X=None, index_labels=None, precision=9):
+    def __init__(self, X=None, index_labels=None, precision=9, 
+                 random_state=None):
+        # Random number generation with provided seed
+        if isinstance(random_state, int):
+            self.rng = np.random.RandomState(random_state)
+        elif isinstance(random_state, np.random.RandomState):
+            self.rng = random_state
+        else:
+            self.rng = np.random
         # Initialize dict for leaves
         self.leaves = {}
         # Initialize tree root
@@ -134,9 +146,9 @@ class RCTree:
         l = xmax - xmin
         l /= l.sum()
         # Determine dimension to cut
-        q = np.random.choice(self.ndim, p=l)
+        q = self.rng.choice(self.ndim, p=l)
         # Determine value for split
-        p = np.random.uniform(xmin[q], xmax[q])
+        p = self.rng.uniform(xmin[q], xmax[q])
         # Determine subset of points to left
         S1 = (X[:, q] <= p) & (S)
         # Determine subset of points to right
@@ -834,7 +846,7 @@ class RCTree:
         bbox_hat[-1, :] = np.maximum(bbox[-1, :], point)
         b_span = bbox_hat[-1, :] - bbox_hat[0, :]
         b_range = b_span.sum()
-        r = np.random.uniform(0, b_range)
+        r = self.rng.uniform(0, b_range)
         span_sum = np.cumsum(b_span)
         cut_dimension = np.inf
         for j in range(len(span_sum)):
