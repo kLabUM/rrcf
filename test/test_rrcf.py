@@ -139,3 +139,13 @@ def test_random_state():
         tree_seeded.insert_point(point, idx)
         duplicate_tree_seeded.insert_point(point, idx)
     assert str(tree_seeded) == str(duplicate_tree_seeded)
+
+def test_insert_depth():
+    tree = rrcf.RCTree()
+    tree.insert_point([0., 0.], index=0)
+    tree.insert_point([0., 0.], index=1)
+    tree.insert_point([0., 0.], index=2)
+    tree.insert_point([0., 1.], index=3)
+    tree.forget_point(index=3)
+    min_depth = min(leaf.d for leaf in tree.leaves.values())
+    assert min_depth >= 0
