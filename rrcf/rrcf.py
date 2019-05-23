@@ -350,11 +350,12 @@ class RCTree:
             del parent
             # Set sibling as new root
             sibling.u = None
-            if isinstance(sibling, Leaf):
-                sibling.d = 0
             self.root = sibling
             # Update depths
-            self.map_leaves(sibling, op=self._increment_depth, inc=-1)
+            if isinstance(sibling, Leaf):
+                sibling.d = 0
+            else:
+                self.map_leaves(sibling, op=self._increment_depth, inc=-1)
             return self.leaves.pop(index)
         # Find grandparent
         grandparent = parent.u
@@ -441,6 +442,7 @@ class RCTree:
         parent = node.u
         maxdepth = max([leaf.d for leaf in self.leaves.values()])
         depth = 0
+        branch = None
         for _ in range(maxdepth + 1):
             bbox = node.b
             cut_dimension, cut = self._insert_point_cut(point, bbox)
@@ -464,6 +466,10 @@ class RCTree:
                     parent = node
                     node = node.r
                     side = 'r'
+        try:
+            assert branch is not None
+        except:
+            raise AssertionError('Error with program logic: a cut was not found.')
         # Set parent of new leaf and old branch
         node.u = branch
         leaf.u = branch
