@@ -18,6 +18,7 @@ deck = np.arange(n, dtype=int)
 np.random.shuffle(deck)
 indexes = deck[:5]
 
+
 def test_batch():
     # Check stored bounding boxes and leaf counts after instantiating from batch
     branches = []
@@ -30,15 +31,18 @@ def test_batch():
         bbox = tree.get_bbox(branch)
         assert (bbox == branch.b).all()
 
+
 def test_codisp():
     for i in range(100):
         codisp = tree.codisp(i)
         assert codisp > 0
 
+
 def test_disp():
     for i in range(100):
         disp = tree.disp(i)
         assert disp > 0
+
 
 def test_forget_batch():
     # Check stored bounding boxes and leaf counts after forgetting points
@@ -63,6 +67,7 @@ def test_forget_batch():
                 print('Computed:\n', bbox)
                 print('Stored:\n', branch.b)
                 raise
+
 
 def test_insert_batch():
     # Check stored bounding boxes and leaf counts after inserting points
@@ -89,6 +94,7 @@ def test_insert_batch():
                 print('Stored:\n', branch.b)
                 raise
 
+
 def test_batch_with_duplicates():
     # Instantiate tree with 10 duplicates
     leafcount = duplicate_tree._count_leaves(tree.root)
@@ -100,6 +106,7 @@ def test_batch_with_duplicates():
             print(i)
             print(duplicate_tree.leaves[i].n)
             raise
+
 
 def test_insert_duplicate():
     # Insert duplicate point
@@ -114,11 +121,13 @@ def test_insert_duplicate():
             print(duplicate_tree.leaves[i].n)
             raise
 
+
 def test_find_duplicate():
     # Find duplicate point
     point = (1, 1, 1)
     duplicate = duplicate_tree.find_duplicate(point)
     assert duplicate is not None
+
 
 def test_forget_duplicate():
     # Forget duplicate point
@@ -126,11 +135,13 @@ def test_forget_duplicate():
     for i in range(90, 100):
         assert duplicate_tree.leaves[i].n == 10
 
+
 def test_shingle():
     shingle = rrcf.shingle(X, 3)
     step_0 = next(shingle)
     step_1 = next(shingle)
     assert (step_0[1] == step_1[0]).all()
+
 
 def test_random_state():
     # The two trees should have the exact same random-cuts
@@ -139,6 +150,7 @@ def test_random_state():
         tree_seeded.insert_point(point, idx)
         duplicate_tree_seeded.insert_point(point, idx)
     assert str(tree_seeded) == str(duplicate_tree_seeded)
+
 
 def test_insert_depth():
     tree = rrcf.RCTree()
@@ -149,3 +161,11 @@ def test_insert_depth():
     tree.forget_point(index=3)
     min_depth = min(leaf.d for leaf in tree.leaves.values())
     assert min_depth >= 0
+
+
+if __name__ == '__main__':
+    test_batch()
+    test_batch_with_duplicates()
+    test_codisp()
+    test_disp()
+    test_find_duplicate()

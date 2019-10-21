@@ -1,4 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import numpy as np
+from .leaf import Leaf
+from .branch import Branch
 
 
 class RCTree:
@@ -863,59 +867,3 @@ class RCTree:
             raise ValueError("Cut dimension is not finite.")
         cut = bbox_hat[0, cut_dimension] + span_sum[cut_dimension] - r
         return cut_dimension, cut
-
-
-class Branch:
-    """
-    Branch of RCTree containing two children and at most one parent.
-
-    Attributes:
-    -----------
-    q: Dimension of cut
-    p: Value of cut
-    l: Pointer to left child
-    r: Pointer to right child
-    u: Pointer to parent
-    n: Number of leaves under branch
-    b: Bounding box of points under branch (2 x d)
-    """
-    __slots__ = ['q', 'p', 'l', 'r', 'u', 'n', 'b']
-
-    def __init__(self, q, p, l=None, r=None, u=None, n=0, b=None):
-        self.l = l
-        self.r = r
-        self.u = u
-        self.q = q
-        self.p = p
-        self.n = n
-        self.b = b
-
-    def __repr__(self):
-        return "Branch(q={}, p={:.2f})".format(self.q, self.p)
-
-
-class Leaf:
-    """
-    Leaf of RCTree containing no children and at most one parent.
-
-    Attributes:
-    -----------
-    i: Index of leaf (user-specified)
-    d: Depth of leaf
-    u: Pointer to parent
-    x: Original point (1 x d)
-    n: Number of points in leaf (1 if no duplicates)
-    b: Bounding box of point (1 x d)
-    """
-    __slots__ = ['i', 'd', 'u', 'x', 'n', 'b']
-
-    def __init__(self, i, d=None, u=None, x=None, n=1):
-        self.u = u
-        self.i = i
-        self.d = d
-        self.x = x
-        self.n = n
-        self.b = x.reshape(1, -1)
-
-    def __repr__(self):
-        return "Leaf({0})".format(self.i)
