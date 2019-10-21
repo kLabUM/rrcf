@@ -105,3 +105,4 @@ venv.bak/
 
 # Mac binary file
 .DS_Store
+.idea/*
