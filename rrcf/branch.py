@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 class Branch:
     """
     Branch of RCTree containing two children and at most one parent.

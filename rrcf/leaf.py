@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 class Leaf:
     """
     Leaf of RCTree containing no children and at most one parent.

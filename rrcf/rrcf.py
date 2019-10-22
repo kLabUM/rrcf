@@ -64,8 +64,7 @@ class RCTree:
     >>> tree.forget_point(100)
     """
 
-    def __init__(self, X=None, index_labels=None, precision=9, 
-                 random_state=None):
+    def __init__(self, X=None, index_labels=None, precision=9, random_state=None):
         # Random number generation with provided seed
         if isinstance(random_state, int):
             self.rng = np.random.RandomState(random_state)
@@ -86,8 +85,7 @@ class RCTree:
                 index_labels = np.arange(X.shape[0], dtype=int)
             self.index_labels = index_labels
             # Check for duplicates
-            U, I, N = np.unique(X, return_inverse=True, return_counts=True,
-                                axis=0)
+            U, I, N = np.unique(X, return_inverse=True, return_counts=True, axis=0)
             # If duplicates exist, take unique elements
             if N.max() > 1:
                 n, d = U.shape
@@ -102,13 +100,13 @@ class RCTree:
             self.u = None
             # Create RRC Tree
             S = np.ones(n, dtype=np.bool)
-            self._mktree(X, S, N, I, parent=self)
+            self._mk_tree_(X, S, N, I, parent=self)
             # Remove parent of root
             self.root.u = None
             # Count all leaves under each branch
-            self._count_all_top_down(self.root)
+            self._count_all_top_down_(self.root)
             # Set bboxes of all branches
-            self._get_bbox_top_down(self.root)
+            self._get_bbox_top_down_(self.root)
 
     def __repr__(self):
         depth = ""
@@ -142,7 +140,7 @@ class RCTree:
         print_tree(self.root)
         return treestr
 
-    def _cut(self, X, S, parent=None, side='l'):
+    def _cut_(self, X, S, parent=None, side='l'):
         # Find max and min over all d dimensions
         xmax = X[S].max(axis=0)
         xmin = X[S].min(axis=0)
@@ -164,19 +162,19 @@ class RCTree:
             setattr(parent, side, child)
         return S1, S2, child
 
-    def _mktree(self, X, S, N, I, parent=None, side='root', depth=0):
+    def _mk_tree_(self, X, S, N, I, parent=None, side='root', depth=0):
         # Increment depth as we traverse down
         depth += 1
         # Create a cut according to definition 1
-        S1, S2, branch = self._cut(X, S, parent=parent, side=side)
+        S1, S2, branch = self._cut_(X, S, parent=parent, side=side)
         # If S1 does not contain an isolated point...
         if S1.sum() > 1:
             # Recursively construct tree on S1
-            self._mktree(X, S1, N, I, parent=branch, side='l', depth=depth)
+            self._mk_tree_(X, S1, N, I, parent=branch, side='l', depth=depth)
         # Otherwise...
         else:
             # Create a leaf node from isolated point
-            i = np.asscalar(np.flatnonzero(S1))
+            i = np.ndarray.item(np.flatnonzero(S1))
             leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :], n=N[i])
             # Link leaf node to parent
             branch.l = leaf
@@ -194,11 +192,11 @@ class RCTree:
         # If S2 does not contain an isolated point...
         if S2.sum() > 1:
             # Recursively construct tree on S2
-            self._mktree(X, S2, N, I, parent=branch, side='r', depth=depth)
+            self._mk_tree_(X, S2, N, I, parent=branch, side='r', depth=depth)
         # Otherwise...
         else:
             # Create a leaf node from isolated point
-            i = np.asscalar(np.flatnonzero(S2))
+            i = np.ndarray.item(np.flatnonzero(S2))
             leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :], n=N[i])
             # Link leaf node to parent
             branch.r = leaf
@@ -333,7 +331,7 @@ class RCTree:
         # If duplicate points exist...
         if leaf.n > 1:
             # Simply decrement the number of points in the leaf and for all branches above
-            self._update_leaf_count_upwards(leaf, inc=-1)
+            self._update_leaf_count_upwards_(leaf, inc=-1)
             return self.leaves.pop(index)
         # Weird cases here:
         # If leaf is the root...
@@ -359,7 +357,7 @@ class RCTree:
             if isinstance(sibling, Leaf):
                 sibling.d = 0
             else:
-                self.map_leaves(sibling, op=self._increment_depth, inc=-1)
+                self.map_leaves(sibling, op=self._increment_depth_, inc=-1)
             return self.leaves.pop(index)
         # Find grandparent
         grandparent = parent.u
@@ -372,15 +370,15 @@ class RCTree:
             grandparent.r = sibling
         # Update depths
         parent = grandparent
-        self.map_leaves(sibling, op=self._increment_depth, inc=-1)
+        self.map_leaves(sibling, op=self._increment_depth_, inc=-1)
         # Update leaf counts under each branch
-        self._update_leaf_count_upwards(parent, inc=-1)
+        self._update_leaf_count_upwards_(parent, inc=-1)
         # Update bounding boxes
         point = leaf.x
-        self._relax_bbox_upwards(parent, point)
+        self._relax_bbox_upwards_(parent, point)
         return self.leaves.pop(index)
 
-    def _update_leaf_count_upwards(self, node, inc=1):
+    def _update_leaf_count_upwards_(self, node, inc=1):
         """
         Called after inserting or removing leaves. Updates the stored count of leaves
         beneath each branch (branch.n).
@@ -438,7 +436,7 @@ class RCTree:
         # Check for duplicate points
         duplicate = self.find_duplicate(point, tolerance=tolerance)
         if duplicate:
-            self._update_leaf_count_upwards(duplicate, inc=1)
+            self._update_leaf_count_upwards_(duplicate, inc=1)
             self.leaves[index] = duplicate
             return duplicate
         # If tree has points and point is not a duplicate, continue with main algorithm...
@@ -449,7 +447,7 @@ class RCTree:
         branch = None
         for _ in range(maxdepth + 1):
             bbox = node.b
-            cut_dimension, cut = self._insert_point_cut(point, bbox)
+            cut_dimension, cut = self._insert_point_cut_(point, bbox)
             if cut <= bbox[0, cut_dimension]:
                 leaf = Leaf(x=point, i=index, d=depth)
                 branch = Branch(q=cut_dimension, p=cut, l=leaf, r=node,
@@ -486,11 +484,11 @@ class RCTree:
             # If a new root was created, assign the attribute
             self.root = branch
         # Increment depths below branch
-        self.map_leaves(branch, op=self._increment_depth, inc=1)
+        self.map_leaves(branch, op=self._increment_depth_, inc=1)
         # Increment leaf count above branch
-        self._update_leaf_count_upwards(parent, inc=1)
+        self._update_leaf_count_upwards_(parent, inc=1)
         # Update bounding boxes
-        self._tighten_bbox_upwards(branch)
+        self._tighten_bbox_upwards_(branch)
         # Add leaf to leaves dict
         self.leaves[index] = leaf
         # Return inserted leaf for convenience
@@ -532,7 +530,7 @@ class RCTree:
         point = point.ravel()
         if node is None:
             node = self.root
-        return self._query(point, node)
+        return self._query_(point, node)
 
     def disp(self, leaf):
         """
@@ -660,7 +658,7 @@ class RCTree:
             branch = self.root
         mins = np.full(self.ndim, np.inf)
         maxes = np.full(self.ndim, -np.inf)
-        self.map_leaves(branch, op=self._get_bbox, mins=mins, maxes=maxes)
+        self.map_leaves(branch, op=self._get_bbox_, mins=mins, maxes=maxes)
         bbox = np.vstack([mins, maxes])
         return bbox
 
@@ -709,7 +707,7 @@ class RCTree:
                 return nearest
         return None
 
-    def _lr_branch_bbox(self, node):
+    def _lr_branch_bbox_(self, node):
         """
         Compute bbox of node based on bboxes of node's children.
         """
@@ -717,40 +715,40 @@ class RCTree:
                           np.maximum(node.l.b[-1, :], node.r.b[-1, :])])
         return bbox
 
-    def _get_bbox_top_down(self, node):
+    def _get_bbox_top_down_(self, node):
         """
         Recursively compute bboxes of all branches from root to leaves.
         """
         if isinstance(node, Branch):
             if node.l:
-                self._get_bbox_top_down(node.l)
+                self._get_bbox_top_down_(node.l)
             if node.r:
-                self._get_bbox_top_down(node.r)
-            bbox = self._lr_branch_bbox(node)
+                self._get_bbox_top_down_(node.r)
+            bbox = self._lr_branch_bbox_(node)
             node.b = bbox
 
-    def _count_all_top_down(self, node):
+    def _count_all_top_down_(self, node):
         """
         Recursively compute number of leaves below each branch from
         root to leaves.
         """
         if isinstance(node, Branch):
             if node.l:
-                self._count_all_top_down(node.l)
+                self._count_all_top_down_(node.l)
             if node.r:
-                self._count_all_top_down(node.r)
+                self._count_all_top_down_(node.r)
             node.n = node.l.n + node.r.n
 
-    def _count_leaves(self, node):
+    def _count_leaves_(self, node):
         """
         Count leaves underneath a single node.
         """
         num_leaves = np.array(0, dtype=np.int64)
-        self.map_leaves(node, op=self._accumulate, accumulator=num_leaves)
-        num_leaves = np.asscalar(num_leaves)
+        self.map_leaves(node, op=self._accumulate_, accumulator=num_leaves)
+        num_leaves = np.ndarray.item(num_leaves)
         return num_leaves
 
-    def _query(self, point, node):
+    def _query_(self, point, node):
         """
         Recursively search for the nearest leaf to a given point.
         """
@@ -758,29 +756,29 @@ class RCTree:
             return node
         else:
             if point[node.q] <= node.p:
-                return self._query(point, node.l)
+                return self._query_(point, node.l)
             else:
-                return self._query(point, node.r)
+                return self._query_(point, node.r)
 
-    def _increment_depth(self, x, inc=1):
+    def _increment_depth_(self, x, inc=1):
         """
         Primitive function for incrementing the depth attribute of a leaf.
         """
         x.d += (inc)
 
-    def _accumulate(self, x, accumulator):
+    def _accumulate_(self, x, accumulator):
         """
         Primitive function for helping to count the number of points in a subtree.
         """
         accumulator += (x.n)
 
-    def _get_nodes(self, x, stack):
+    def _get_nodes_(self, x, stack):
         """
         Primitive function for listing all leaves in a subtree.
         """
         stack.append(x)
 
-    def _get_bbox(self, x, mins, maxes):
+    def _get_bbox_(self, x, mins, maxes):
         """
         Primitive function for computing the bbox of a point.
         """
@@ -789,12 +787,12 @@ class RCTree:
         mins[lt] = x.x[lt]
         maxes[gt] = x.x[gt]
 
-    def _tighten_bbox_upwards(self, node):
+    def _tighten_bbox_upwards_(self, node):
         """
         Called when new point is inserted. Expands bbox of all nodes above new point
         if point is outside the existing bbox.
         """
-        bbox = self._lr_branch_bbox(node)
+        bbox = self._lr_branch_bbox_(node)
         node.b = bbox
         node = node.u
         while node:
@@ -811,20 +809,20 @@ class RCTree:
                 break
             node = node.u
 
-    def _relax_bbox_upwards(self, node, point):
+    def _relax_bbox_upwards_(self, node, point):
         """
         Called when point is deleted. Contracts bbox of all nodes above deleted point
         if the deleted point defined the boundary of the bbox.
         """
         while node:
-            bbox = self._lr_branch_bbox(node)
+            bbox = self._lr_branch_bbox_(node)
             if not ((node.b[0, :] == point) | (node.b[-1, :] == point)).any():
                 break
             node.b[0, :] = bbox[0, :]
             node.b[-1, :] = bbox[-1, :]
             node = node.u
 
-    def _insert_point_cut(self, point, bbox):
+    def _insert_point_cut_(self, point, bbox):
         """
         Generates the cut dimension and cut value based on the InsertPoint algorithm.
 
@@ -845,7 +843,7 @@ class RCTree:
         Example:
         --------
         # Generate cut dimension and cut value
-        >>> _insert_point_cut(x_inital, bbox)
+        >>> _insert_point_cut_(x_inital, bbox)
 
         (0, 0.9758881798109296)
         """

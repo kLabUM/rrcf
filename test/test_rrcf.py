@@ -22,11 +22,11 @@ indexes = deck[:5]
 def test_batch():
     # Check stored bounding boxes and leaf counts after instantiating from batch
     branches = []
-    tree.map_branches(tree.root, op=tree._get_nodes, stack=branches)
-    leafcount = tree._count_leaves(tree.root)
+    tree.map_branches(tree.root, op=tree._get_nodes_, stack=branches)
+    leafcount = tree._count_leaves_(tree.root)
     assert (leafcount == n)
     for branch in branches:
-        leafcount = tree._count_leaves(branch)
+        leafcount = tree._count_leaves_(branch)
         assert (leafcount == branch.n)
         bbox = tree.get_bbox(branch)
         assert (bbox == branch.b).all()
@@ -49,9 +49,9 @@ def test_forget_batch():
     for index in indexes:
         forgotten = tree.forget_point(index)
         branches = []
-        tree.map_branches(tree.root, op=tree._get_nodes, stack=branches)
+        tree.map_branches(tree.root, op=tree._get_nodes_, stack=branches)
         for branch in branches:
-            leafcount = tree._count_leaves(branch)
+            leafcount = tree._count_leaves_(branch)
             try:
                 assert (leafcount == branch.n)
             except:
@@ -75,9 +75,9 @@ def test_insert_batch():
         x = np.random.randn(d)
         tree.insert_point(x, index=index)
         branches = []
-        tree.map_branches(tree.root, op=tree._get_nodes, stack=branches)
+        tree.map_branches(tree.root, op=tree._get_nodes_, stack=branches)
         for branch in branches:
-            leafcount = tree._count_leaves(branch)
+            leafcount = tree._count_leaves_(branch)
             try:
                 assert (leafcount == branch.n)
             except:
@@ -97,7 +97,7 @@ def test_insert_batch():
 
 def test_batch_with_duplicates():
     # Instantiate tree with 10 duplicates
-    leafcount = duplicate_tree._count_leaves(tree.root)
+    leafcount = duplicate_tree._count_leaves_(tree.root)
     assert (leafcount == n)
     for i in range(90, 100):
         try:
@@ -169,3 +169,6 @@ if __name__ == '__main__':
     test_codisp()
     test_disp()
     test_find_duplicate()
+    # test_forget_duplicate()
+    test_insert_depth()
+    test_shingle()
