@@ -15,7 +15,7 @@ class Branch:
     n: Number of leaves under branch
     b: Bounding box of points under branch (2 x d)
     """
-    __slots__ = ['q', 'p', 'l', 'r', 'u', 'n', 'b']
+    # __slots__ = ['q', 'p', 'l', 'r', 'u', 'n', 'b']
 
     def __init__(self, q, p, l=None, r=None, u=None, n=0, b=None):
         self.l = l

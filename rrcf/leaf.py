@@ -14,7 +14,7 @@ class Leaf:
     n: Number of points in leaf (1 if no duplicates)
     b: Bounding box of point (1 x d)
     """
-    __slots__ = ['i', 'd', 'u', 'x', 'n', 'b']
+    # __slots__ = ['i', 'd', 'u', 'x', 'n', 'b']
 
     def __init__(self, i, d=None, u=None, x=None, n=1):
         self.u = u

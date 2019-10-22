@@ -5,7 +5,7 @@ from .leaf import Leaf
 from .branch import Branch
 
 
-class RCTree:
+class RCTree(object):
     """
     Robust random cut tree data structure as described in:
 

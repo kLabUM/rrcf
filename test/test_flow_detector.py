@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+import dill
+import time
 import pandas as pd
 from collections import deque
 import matplotlib.pyplot as plt
-import rrcf
+from multiprocessing import Pool, Manager
+from rrcf import RCTree
+
 
 # Read data
 def data_explore(is_show=True):
@@ -34,9 +38,24 @@ def data_explore(is_show=True):
     return data_frame
 
 
+def __create_tree__(tree_id, data_frame, result_dict):
+    tree = RCTree(data_frame.values, index_labels=list(data_frame.index))
+    tree_dumps = dill.dumps(tree)
+    result_dict[tree_id] = tree_dumps
+
+
+def __calc_avg_codisp_socre__(tree_id, tree_dump, data_frame, result_dict):
+    tree = dill.loads(tree_dump)
+    print("tree_id is {}".format(tree_id))
+    anomaly_score = pd.Series(0.0, index=data_frame.index)
+    for idx in data_frame.index:
+        anomaly_score[idx] = tree.codisp(idx)
+    result_dict[tree_id] = anomaly_score
+
+
 def flow_detector():
     # Set tree parameters
-    num_trees = 10
+    num_trees = 100
     tree_size = 6000
     history_queue = deque([], maxlen=tree_size)
 
@@ -47,18 +66,28 @@ def flow_detector():
 
     anomaly_score = pd.Series(0.0, index=data_frame.index)
 
-    forest = []
-    for _ in range(num_trees):
-        tree = rrcf.RCTree(history_samples.values, index_labels=list(history_samples.index))
-        forest.append(tree)
+    manager = Manager()
+    return_dict = manager.dict()
+    pool = Pool(processes=5)
+    for tree_id in range(num_trees):
+        pool.apply_async(func=__create_tree__, args=(tree_id, history_samples, return_dict, ))
+    pool.close()
+    pool.join()
+    forest = [dill.loads(obj) for obj in return_dict.values()]
+    print("forest length is {}".format(len(forest)))
 
-    for idx in history_samples.index:
-        cur_point = history_samples.ix[idx].values
-        avg_codisp = 0.0
-        for tree in forest:
-            avg_codisp += tree.codisp(idx) / num_trees
-        print('CoDisp for point ({index}) is {avg_codisp}'.format(index=idx, avg_codisp=avg_codisp))
-        anomaly_score[idx] = avg_codisp
+    manager_history = Manager()
+    return_history_dict = manager_history.dict()
+    pool_history = Pool(processes=5)
+    for idx, tree in enumerate(forest):
+        tree_dump = dill.dumps(tree)
+        pool_history.apply_async(func=__calc_avg_codisp_socre__, args=(idx, tree_dump, history_samples, return_history_dict,))
+    pool_history.close()
+    pool_history.join()
+
+    for obj in return_history_dict.values():
+        anomaly_score += obj
+    anomaly_score = anomaly_score / num_trees
 
     for idx in list(history_samples.index):
         history_queue.append(idx)
@@ -77,7 +106,7 @@ def flow_detector():
                 tree.forget_point(old_index)
             tree.insert_point(point=cur_point, index=idx)
             avg_codisp += tree.codisp(idx) / num_trees
-        print('CoDisp for point ({index}) is {avg_codisp}'.format(index=idx, avg_codisp=avg_codisp))
+        # print('CoDisp for point ({index}) is {avg_codisp}'.format(index=idx, avg_codisp=avg_codisp))
         anomaly_score[idx] = avg_codisp
 
     if True:
@@ -95,4 +124,32 @@ def flow_detector():
         plt.show()
 
 
-flow_detector()
+import numpy as np
+from rrcf.leaf import Leaf
+
+
+class A(object):
+    def __init__(self):
+        self.tree = Leaf(i=10, x=np.ones(10, np.int))
+        self.a = None
+
+    def __str__(self):
+        def func():
+            return "hello world"
+        return func()
+
+    def __repr__(self):
+        def func():
+            return "dfgdfgfdhgf"
+        return func()
+
+    def func(self, op=(lambda x: None)):
+        op([1,2,3])
+
+
+if __name__ == '__main__':
+    flow_detector()
+    a = A()
+    print(str(a))
+    import pickle as pkl
+    a = pkl.dumps(a)
