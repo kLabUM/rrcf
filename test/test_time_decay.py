@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import numpy as np
 import pandas as pd
 import scipy.stats
@@ -7,7 +8,14 @@ import rrcf
 from matplotlib import pyplot as plt
 
 # Read data
-taxi = pd.read_csv('../resources/nyc_taxi.csv', index_col=0)
+abs_path = os.path.abspath(__file__)
+data_paths = abs_path.strip().split("/")[:-1]
+data_paths.extend(["..", "resources", "nyc_taxi.csv"])
+data_path = os.path.join(*data_paths)
+if not data_path.startswith("/"):
+    data_path = "/" + data_path
+
+taxi = pd.read_csv(data_path, index_col=0)
 taxi.index = pd.to_datetime(taxi.index)
 data = taxi['value'].astype(float).values
 n = data.shape[0]
