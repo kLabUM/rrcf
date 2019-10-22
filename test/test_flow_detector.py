@@ -45,10 +45,20 @@ def flow_detector():
     history_samples = data_frame[:n]
     testing_samples = data_frame[n:]
 
+    anomaly_score = pd.Series(0.0, index=data_frame.index)
+
     forest = []
     for _ in range(num_trees):
         tree = rrcf.RCTree(history_samples.values, index_labels=list(history_samples.index))
         forest.append(tree)
+
+    for idx in history_samples.index:
+        cur_point = history_samples.ix[idx].values
+        avg_codisp = 0.0
+        for tree in forest:
+            avg_codisp += tree.codisp(idx) / num_trees
+        print('CoDisp for point ({index}) is {avg_codisp}'.format(index=idx, avg_codisp=avg_codisp))
+        anomaly_score[idx] = avg_codisp
 
     for idx in list(history_samples.index):
         history_queue.append(idx)
@@ -61,14 +71,28 @@ def flow_detector():
             old_index = None
         history_queue.append(idx)
 
-        avg_codisp = 0
+        avg_codisp = 0.0
         for tree in forest:
             if old_index is not None:
                 tree.forget_point(old_index)
             tree.insert_point(point=cur_point, index=idx)
             avg_codisp += tree.codisp(idx) / num_trees
         print('CoDisp for point ({index}) is {avg_codisp}'.format(index=idx, avg_codisp=avg_codisp))
-        break
+        anomaly_score[idx] = avg_codisp
+
+    if True:
+        fig, ax = plt.subplots(4, figsize=(20, 8))
+        data_frame["bytes"].plot(ax=ax[0])
+        data_frame["request"].plot(ax=ax[1])
+        data_frame["num"].plot(ax=ax[2])
+        anomaly_score.plot(ax=ax[3])
+
+        ax[0].set_ylabel("bytes")
+        ax[1].set_ylabel("request")
+        ax[2].set_ylabel("num")
+        ax[3].set_ylabel("codisp_score")
+        plt.tight_layout()
+        plt.show()
 
 
-# flow_detector()
+flow_detector()
