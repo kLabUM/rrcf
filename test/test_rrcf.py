@@ -1,3 +1,4 @@
+import json
 import numpy as np
 import rrcf
 
@@ -149,3 +150,15 @@ def test_insert_depth():
     tree.forget_point(index=3)
     min_depth = min(leaf.d for leaf in tree.leaves.values())
     assert min_depth >= 0
+
+def test_to_dict():
+    obj = tree.to_dict()
+    with open('tree.json', 'w') as outfile:
+        json.dump(obj, outfile)
+
+def test_from_dict():
+    with open('tree.json', 'r') as infile:
+        obj = json.load(infile)
+    tree = rrcf.RCTree()
+    tree.load_dict(obj)
+    tree = rrcf.RCTree.from_dict(obj)

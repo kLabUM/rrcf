@@ -759,8 +759,12 @@ class RCTree:
             if node.r:
                 self._serialize(node.r, obj['r'])
         elif isinstance(node, Leaf):
+            if isinstance(node.i, np.int64):
+                i = int(node.i)
+            else:
+                i = node.i
             obj['type'] = 'Leaf'
-            obj['i'] = node.i
+            obj['i'] = i
             obj['x'] = node.x.tolist()
             obj['d'] = int(node.d)
             obj['n'] = int(node.n)
