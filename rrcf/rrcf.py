@@ -14,6 +14,11 @@ class RCTree:
     X: np.ndarray (n x d) (optional)
        Array containing n data points, each with dimension d.
        If no data provided, an empty tree is created.
+    index_labels: sequence of length n (optional) (default=None)
+                  Labels for data points provided in X.
+                  Defaults to [0, 1, ... n-1].
+    precision: float (optional) (default=9)
+               Floating-point precision for distinguishing duplicate points.
     random_state: int, RandomState instance or None (optional) (default=None)
         If int, random_state is the seed used by the random number generator;
         If RandomState instance, random_state is the random number generator;
@@ -704,6 +709,179 @@ class RCTree:
             if np.isclose(nearest.x, point, rtol=tolerance).all():
                 return nearest
         return None
+
+    def to_dict(self):
+        """
+        Serializes RCTree to a nested dict that can be written to disk or sent
+        over a network (e.g. as json).
+
+        Returns:
+        --------
+        obj: dict
+             Nested dictionary representing all nodes in the RCTree.
+
+        Example:
+        --------
+        # Create RCTree
+        >>> X = np.random.randn(4, 3)
+        >>> tree = rrcf.RCTree(X)
+
+        # Write tree to dict
+        >>> obj = tree.to_dict()
+        >>> print(obj)
+
+        # Write dict to file
+        >>> import json
+        >>> with open('tree.json', 'w') as outfile:
+                json.dump(obj, outfile)
+        """
+        # Create empty dict
+        obj = {}
+        # Serialize tree to dict
+        self._serialize(self.root, obj)
+        # Return dict
+        return obj
+
+    def _serialize(self, node, obj):
+        """
+        Recursively serializes tree into a nested dict.
+        """
+        if isinstance(node, Branch):
+            obj['type'] = 'Branch'
+            obj['q'] = int(node.q)
+            obj['p'] = float(node.p)
+            obj['n'] = int(node.n)
+            obj['b'] = node.b.tolist()
+            obj['l'] = {}
+            obj['r'] = {}
+            if node.l:
+                self._serialize(node.l, obj['l'])
+            if node.r:
+                self._serialize(node.r, obj['r'])
+        elif isinstance(node, Leaf):
+            obj['type'] = 'Leaf'
+            obj['i'] = node.i
+            obj['x'] = node.x.tolist()
+            obj['d'] = int(node.d)
+            obj['n'] = int(node.n)
+        else:
+            raise TypeError('`node` must be Branch or Leaf instance')
+
+    def load_dict(self, obj):
+        """
+        Deserializes a nested dict representing an RCTree and loads into the RCTree
+        instance. Note that this will delete all data in the current RCTree and
+        replace it with the loaded data.
+
+        Parameters:
+        -----------
+        obj: dict
+             Nested dictionary representing all nodes in the RCTree.
+
+        Example:
+        --------
+        # Load dict (see to_dict method for more info)
+        >>> import json
+        >>> with open('tree.json', 'r') as infile:
+                obj = json.load(infile)
+
+        # Create empty RCTree and load data
+        >>> tree = rrcf.RCTree()
+        >>> tree.load_dict(obj)
+
+        # View loaded data
+        >>> print(tree)
+        >>>
+        ─+
+        ├───+
+        │   ├──(3)
+        │   └───+
+        │       ├──(2)
+        │       └──(0)
+        └──(1)
+        """
+        # Create anchor node
+        anchor = Branch(q=None, p=None)
+        # Deserialize json object
+        self._deserialize(obj, anchor)
+        # Get root node
+        root = anchor.l
+        root.u = None
+        # Fill in leaves dict
+        leaves = {}
+        self.map_leaves(root, op=(lambda x, d: d.update({x.i : x})),
+                        d=leaves)
+        # Set root of tree to new root
+        self.root = root
+        self.leaves = leaves
+        # Set number of dimensions based on first leaf
+        self.ndim = len(next(iter(leaves.values())).x)
+
+    def _deserialize(self, obj, node, side='l'):
+        """
+        Recursively deserializes tree from a nested dict.
+        """
+        if obj['type'] == 'Branch':
+            q = obj['q']
+            p = obj['p']
+            n = np.int64(obj['n'])
+            b = np.asarray(obj['b'])
+            branch = Branch(q=q, p=p, n=n, b=b, u=node)
+            setattr(node, side, branch)
+            if 'l' in obj:
+                self._deserialize(obj['l'], branch, side='l')
+            if 'r' in obj:
+                self._deserialize(obj['r'], branch, side='r')
+        elif obj['type'] == 'Leaf':
+            i = obj['i']
+            x = np.asarray(obj['x'])
+            d = obj['d']
+            n = np.int64(obj['n'])
+            leaf = Leaf(i=i, x=x, d=d, n=n, u=node)
+            setattr(node, side, leaf)
+        else:
+            raise TypeError('`type` must be Branch or Leaf')
+
+    @classmethod
+    def from_dict(cls, obj):
+        """
+        Deserializes a nested dict representing an RCTree and creates a new
+        RCTree instance from the loaded data.
+
+        Parameters:
+        -----------
+        obj: dict
+             Nested dictionary representing all nodes in the RCTree.
+
+        Returns:
+        --------
+        newinstance: rrcf.RCTree
+                     A new RCTree instance based on the loaded data.
+
+        Example:
+        --------
+        # Load dict (see to_dict method for more info)
+        >>> import json
+        >>> with open('tree.json', 'r') as infile:
+                obj = json.load(infile)
+
+        # Create empty RCTree and load data
+        >>> tree = rrcf.RCTree.from_dict(obj)
+
+        # View loaded data
+        >>> print(tree)
+        >>>
+        ─+
+        ├───+
+        │   ├──(3)
+        │   └───+
+        │       ├──(2)
+        │       └──(0)
+        └──(1)
+        """
+        newinstance = cls()
+        newinstance.load_dict(obj)
+        return newinstance
 
     def _lr_branch_bbox(self, node):
         """
