@@ -3,16 +3,13 @@ layout: default
 ---
 
 # rrcf 🌲🌲🌲
-[![Build Status](https://travis-ci.org/kLabUM/rrcf.svg?branch=master)](https://travis-ci.org/kLabUM/rrcf) [![Coverage Status](https://coveralls.io/repos/github/kLabUM/rrcf/badge.svg?branch=master)](https://coveralls.io/github/kLabUM/rrcf?branch=master) [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/) ![GitHub](https://img.shields.io/github/license/kLabUM/rrcf.svg)
+[![Build Status](https://travis-ci.org/kLabUM/rrcf.svg?branch=master)](https://travis-ci.org/kLabUM/rrcf) [![Coverage Status](https://coveralls.io/repos/github/kLabUM/rrcf/badge.svg?branch=master)](https://coveralls.io/github/kLabUM/rrcf?branch=master) [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/) ![GitHub](https://img.shields.io/github/license/kLabUM/rrcf.svg) [![status](http://joss.theoj.org/papers/f8c83c0b01a984d0dbf934939b53c96d/status.svg)](http://joss.theoj.org/papers/f8c83c0b01a984d0dbf934939b53c96d)
 
 Implementation of the *Robust Random Cut Forest Algorithm* for anomaly detection by [Guha et al. (2016)](http://proceedings.mlr.press/v48/guha16.pdf).
 
-```
-S. Guha, N. Mishra, G. Roy, & O. Schrijvers. Robust
-random cut forest based anomaly detection on streams,
-in Proceedings of the 33rd International conference on
-machine learning, New York, NY, 2016 (pp. 2712-2721).
-```
+> S. Guha, N. Mishra, G. Roy, & O. Schrijvers, *Robust random cut forest based anomaly
+> detection on streams*, in Proceedings of the 33rd International conference on machine
+> learning, New York, NY, 2016 (pp. 2712-2721).
 
 ## About
 
@@ -281,4 +278,25 @@ To run the tests, navigate to the root directory of the repo and run:
 
 ```
 $ pytest --cov=rrcf/
+```
+
+## Citing
+
+If you have used this codebase in a publication and wish to cite it, please use the [`Journal of Open Source Software article`](https://joss.theoj.org/papers/10.21105/joss.01336).
+
+> M. Bartos, A. Mullapudi, & S. Troutman, *rrcf: Implementation of the Robust
+> Random Cut Forest algorithm for anomaly detection on streams*,
+> in: Journal of Open Source Software, The Open Journal, Volume 4, Number 35.
+> 2019
+
+```bibtex
+    @article{bartos_2019_rrcf,
+      title={{rrcf: Implementation of the Robust Random Cut Forest algorithm for anomaly detection on streams}},
+      authors={Matthew Bartos and Abhiram Mullapudi and Sara Troutman},
+      journal={{The Journal of Open Source Software}},
+      volume={4},
+      number={35},
+      pages={1336},
+      year={2019}
+    }
 ```
