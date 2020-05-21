@@ -153,10 +153,10 @@ def test_insert_depth():
 
 def test_to_dict():
     tree = rrcf.RCTree()
-    tree.insert_point([0., 0.], index='0')
-    tree.insert_point([0., 0.], index='1')
-    tree.insert_point([0., 0.], index='2')
-    tree.insert_point([0., 1.], index='3')
+    tree.insert_point([0., 0.], index=0)
+    tree.insert_point([0., 0.], index=1)
+    tree.insert_point([0., 0.], index=2)
+    tree.insert_point([0., 1.], index=3)
     obj = tree.to_dict()
     X = np.random.randn(10, 3)
     X[5] = X[2]
