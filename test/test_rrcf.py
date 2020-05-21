@@ -174,3 +174,11 @@ def test_from_dict():
     tree = rrcf.RCTree.from_dict(obj)
     # Ensure we didn't drop any duplicate leaves
     assert len(tree.leaves) == num_leaves
+
+def test_print():
+    tree = rrcf.RCTree()
+    tree.insert_point([0., 0.], index=0)
+    tree.insert_point([0., 0.], index=1)
+    tree.insert_point([0., 1.], index=3)
+    print(list(tree.leaves.values())[0])
+    print(tree.root)
