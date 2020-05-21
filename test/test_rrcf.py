@@ -166,7 +166,7 @@ def test_to_dict():
         json.dump(obj, outfile)
 
 def test_from_dict():
-    num_leaves = len(tree.leaves)
+    num_leaves = 10
     with open('tree.json', 'r') as infile:
         obj = json.load(infile)
     tree = rrcf.RCTree()
