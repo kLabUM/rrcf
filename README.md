@@ -50,7 +50,7 @@ Listed version numbers have been tested and are known to work (this does not nec
 
 ## Robust random cut trees
 
-A robust random cut tree is a binary search tree that can be used to detect outliers in a point set. Points located nearer to the root of the tree are more likely to be outliers.
+A robust random cut tree (RRCT) is a binary search tree that can be used to detect outliers in a point set. A RRCT can be instantiated from a point set. Points can also be added and removed from an RRCT.
 
 ### Creating the tree
 
@@ -278,13 +278,13 @@ If you have used this codebase in a publication and wish to cite it, please use 
 > 2019
 
 ```bibtex
-    @article{bartos_2019_rrcf,
-      title={{rrcf: Implementation of the Robust Random Cut Forest algorithm for anomaly detection on streams}},
-      authors={Matthew Bartos and Abhiram Mullapudi and Sara Troutman},
-      journal={{The Journal of Open Source Software}},
-      volume={4},
-      number={35},
-      pages={1336},
-      year={2019}
-    }
+@article{bartos_2019_rrcf,
+  title={{rrcf: Implementation of the Robust Random Cut Forest algorithm for anomaly detection on streams}},
+  authors={Matthew Bartos and Abhiram Mullapudi and Sara Troutman},
+  journal={{The Journal of Open Source Software}},
+  volume={4},
+  number={35},
+  pages={1336},
+  year={2019}
+}
 ```
