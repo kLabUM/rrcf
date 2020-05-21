@@ -1,3 +1,5 @@
 from rrcf.rrcf import *
 from rrcf.shingle import shingle
-__version__ = "0.3"
+import pkg_resources
+
+__version__ = pkg_resources.get_distribution('rrcf').version

@@ -737,12 +737,16 @@ class RCTree:
         """
         # Create empty dict
         obj = {}
+        # Create dict to keep track of duplicates
+        duplicates = {}
+        for k, v in self.leaves.items():
+            duplicates.setdefault(v, []).append(k)
         # Serialize tree to dict
-        self._serialize(self.root, obj)
+        self._serialize(self.root, obj, duplicates)
         # Return dict
         return obj
 
-    def _serialize(self, node, obj):
+    def _serialize(self, node, obj, duplicates):
         """
         Recursively serializes tree into a nested dict.
         """
@@ -755,9 +759,9 @@ class RCTree:
             obj['l'] = {}
             obj['r'] = {}
             if node.l:
-                self._serialize(node.l, obj['l'])
+                self._serialize(node.l, obj['l'], duplicates)
             if node.r:
-                self._serialize(node.r, obj['r'])
+                self._serialize(node.r, obj['r'], duplicates)
         elif isinstance(node, Leaf):
             if isinstance(node.i, np.int64):
                 i = int(node.i)
@@ -768,6 +772,7 @@ class RCTree:
             obj['x'] = node.x.tolist()
             obj['d'] = int(node.d)
             obj['n'] = int(node.n)
+            obj['ixs'] = duplicates[node]
         else:
             raise TypeError('`node` must be Branch or Leaf instance')
 
@@ -806,22 +811,25 @@ class RCTree:
         """
         # Create anchor node
         anchor = Branch(q=None, p=None)
+        # Create dictionary for restoring duplicates
+        duplicates = {}
         # Deserialize json object
-        self._deserialize(obj, anchor)
+        self._deserialize(obj, anchor, duplicates)
         # Get root node
         root = anchor.l
         root.u = None
         # Fill in leaves dict
         leaves = {}
-        self.map_leaves(root, op=(lambda x, d: d.update({x.i : x})),
-                        d=leaves)
+        for k, v in duplicates.items():
+            for i in v:
+                leaves[i] = k
         # Set root of tree to new root
         self.root = root
         self.leaves = leaves
         # Set number of dimensions based on first leaf
         self.ndim = len(next(iter(leaves.values())).x)
 
-    def _deserialize(self, obj, node, side='l'):
+    def _deserialize(self, obj, node, duplicates, side='l'):
         """
         Recursively deserializes tree from a nested dict.
         """
@@ -833,9 +841,9 @@ class RCTree:
             branch = Branch(q=q, p=p, n=n, b=b, u=node)
             setattr(node, side, branch)
             if 'l' in obj:
-                self._deserialize(obj['l'], branch, side='l')
+                self._deserialize(obj['l'], branch, duplicates, side='l')
             if 'r' in obj:
-                self._deserialize(obj['r'], branch, side='r')
+                self._deserialize(obj['r'], branch, duplicates, side='r')
         elif obj['type'] == 'Leaf':
             i = obj['i']
             x = np.asarray(obj['x'])
@@ -843,6 +851,7 @@ class RCTree:
             n = np.int64(obj['n'])
             leaf = Leaf(i=i, x=x, d=d, n=n, u=node)
             setattr(node, side, leaf)
+            duplicates[leaf] = obj['ixs']
         else:
             raise TypeError('`type` must be Branch or Leaf')
 
