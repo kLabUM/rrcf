@@ -740,7 +740,10 @@ class RCTree:
         # Create dict to keep track of duplicates
         duplicates = {}
         for k, v in self.leaves.items():
-            duplicates.setdefault(v, []).append(k)
+            if isinstance(k, np.int64):
+                duplicates.setdefault(v, []).append(int(k))
+            else:
+                duplicates.setdefault(v, []).append(k)
         # Serialize tree to dict
         self._serialize(self.root, obj, duplicates)
         # Return dict
