@@ -152,13 +152,25 @@ def test_insert_depth():
     assert min_depth >= 0
 
 def test_to_dict():
+    tree = rrcf.RCTree()
+    tree.insert_point([0., 0.], index='0')
+    tree.insert_point([0., 0.], index='1')
+    tree.insert_point([0., 0.], index='2')
+    tree.insert_point([0., 1.], index='3')
+    obj = tree.to_dict()
+    X = np.random.randn(10, 3)
+    X[5] = X[2]
+    tree = rrcf.RCTree(X)
     obj = tree.to_dict()
     with open('tree.json', 'w') as outfile:
         json.dump(obj, outfile)
 
 def test_from_dict():
+    num_leaves = len(tree.leaves)
     with open('tree.json', 'r') as infile:
         obj = json.load(infile)
     tree = rrcf.RCTree()
     tree.load_dict(obj)
     tree = rrcf.RCTree.from_dict(obj)
+    # Ensure we didn't drop any duplicate leaves
+    assert len(tree.leaves) == num_leaves
