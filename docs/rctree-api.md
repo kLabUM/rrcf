@@ -312,3 +312,110 @@ Leaf(8)
  Branch(q=0, p=0.62),
  Branch(q=1, p=0.86)]
 ```
+
+## Input/Output
+
+<b>`to_dict`</b>`()`
+> Serializes RCTree to a nested dict that can be written to disk or sent over a network (e.g. as json).
+
+*Returns:*
+
+| Object | Type | Description |
+-----------|------|--------------
+| `obj`     | dict | Nested dictionary representing all nodes in the RCTree. |
+
+*Example:*
+
+```python
+# Create RCTree
+>>> X = np.random.randn(4, 3)
+>>> tree = rrcf.RCTree(X)
+
+# Write tree to dict
+>>> obj = tree.to_dict()
+>>> print(obj)
+
+# Write dict to file
+>>> import json
+>>> with open('tree.json', 'w') as outfile:
+        json.dump(obj, outfile)
+```
+
+---
+
+<b>`load_dict`</b>`(obj)`
+> Deserializes a nested dict representing an RCTree and loads into the RCTree instance. Note that this will delete all data in the current RCTree and replace it with the loaded data.
+
+*Parameters:*
+
+| Argument | Type | Description |
+-----------|------|--------------
+| `obj`      | dict | Nested dictionary representing all nodes in the RCTree. |
+
+*Returns:*
+
+`None`
+
+*Example:*
+
+```python
+# Load dict (see to_dict method for more info)
+>>> import json
+>>> with open('tree.json', 'r') as infile:
+        obj = json.load(infile)
+
+# Create empty RCTree and load data
+>>> tree = rrcf.RCTree()
+>>> tree.load_dict(obj)
+
+# View loaded data
+>>> print(tree)
+>>>
+─+
+├───+
+│   ├──(3)
+│   └───+
+│       ├──(2)
+│       └──(0)
+└──(1)
+```
+
+---
+
+<b>`from_dict`</b>`(obj)`
+> Deserializes a nested dict representing an RCTree and creates a new RCTree instance from the loaded data.
+
+*Parameters:*
+
+| Argument | Type | Description |
+-----------|------|--------------
+| `obj`      | dict | Nested dictionary representing all nodes in the RCTree. |
+
+*Returns:*
+
+| Object | Type | Description |
+-----------|------|--------------
+| `newinstance`      | rrcf.RCTree | A new RCTree instance based on the loaded data. |
+
+*Example:*
+
+```python
+# Load dict (see to_dict method for more info)
+>>> import json
+>>> with open('tree.json', 'r') as infile:
+        obj = json.load(infile)
+
+# Create empty RCTree and load data
+>>> tree = rrcf.RCTree.from_dict(obj)
+
+# View loaded data
+>>> print(tree)
+>>>
+─+
+├───+
+│   ├──(3)
+│   └───+
+│       ├──(2)
+│       └──(0)
+└──(1)
+```
