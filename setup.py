@@ -9,6 +9,7 @@ setup(name='rrcf',
       author_email='mdbartos@umich.edu, abhiramm@umich.edu, stroutm@umich.edu',
       url='http://open-storm.org',
       packages=["rrcf"],
+      license="MIT",
       install_requires=[
           'numpy'
       ]
