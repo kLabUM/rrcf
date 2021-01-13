@@ -390,7 +390,7 @@ class RCTree:
             node.n += inc
             node = node.u
 
-    def insert_point(self, point, index, tolerance=None):
+    def insert_point(self, point, index, tolerance=None, replace=False):
         """
         Inserts a point into the tree, creating a new leaf
 
@@ -401,6 +401,8 @@ class RCTree:
                Identifier for new leaf in tree
         tolerance: float
                    Tolerance for determining duplicate points
+        replace: bool (optional) (default=False)
+                 Allow to replace existing index or not
 
         Returns:
         --------
@@ -432,10 +434,11 @@ class RCTree:
             raise ValueError(
                 "Point must be same dimension as existing points in tree.")
         # Check for existing index in leaves dict
-        try:
-            assert (index not in self.leaves)
-        except KeyError:
-            raise KeyError("Index already exists in leaves dict.")
+        if not replace:
+            try:
+                assert (index not in self.leaves)
+            except KeyError:
+                raise KeyError("Index already exists in leaves dict.")
         # Check for duplicate points
         duplicate = self.find_duplicate(point, tolerance=tolerance)
         if duplicate:
