@@ -1,4 +1,5 @@
 # rrcf 🌲🌲🌲
+
 [![Build Status](https://travis-ci.org/kLabUM/rrcf.svg?branch=master)](https://travis-ci.org/kLabUM/rrcf) [![Coverage Status](https://coveralls.io/repos/github/kLabUM/rrcf/badge.svg?branch=master)](https://coveralls.io/github/kLabUM/rrcf?branch=master) [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/) ![GitHub](https://img.shields.io/github/license/kLabUM/rrcf.svg) [![status](http://joss.theoj.org/papers/f8c83c0b01a984d0dbf934939b53c96d/status.svg)](http://joss.theoj.org/papers/f8c83c0b01a984d0dbf934939b53c96d)
 
 Implementation of the *Robust Random Cut Forest Algorithm* for anomaly detection by [Guha et al. (2016)](http://proceedings.mlr.press/v48/guha16.pdf).
@@ -76,7 +77,7 @@ for i in range(6):
     tree.insert_point(x, index=i)
 ```
 
-```
+```python
 ─+
  ├───+
  │   ├───+
@@ -92,11 +93,11 @@ for i in range(6):
 
 ### Deleting points
 
-```
+```python
 tree.forget_point(2)
 ```
 
-```
+```python
 ─+
  ├───+
  │   ├───+
@@ -114,27 +115,54 @@ The likelihood that a point is an outlier is measured by its collusive displacem
 
 ```python
 # Seed tree with zero-mean, normally distributed data
-X = np.random.randn(100,2)
-tree = rrcf.RCTree(X)
-
-# Generate an inlier and outlier point
-inlier = np.array([0, 0])
-outlier = np.array([4, 4])
-
-# Insert into tree
-tree.insert_point(inlier, index='inlier')
-tree.insert_point(outlier, index='outlier')
+X = np.random.randn(100,2) # X has 100 data points, each 2 variables
+tree = rrcf.RCTree(X) # enter X as tree.leaves points
 ```
 
 ```python
+# Generate an inlier point
+inlier = np.array([0, 0])
+
+# Insert into tree
+tree.insert_point(inlier, index='inlier')
+
 tree.codisp('inlier')
 >>> 1.75
 ```
 
 ```python
+# Delete point to remove from model
+tree.forget_point('inlier')
+```
+
+```python
+# Generate an outlier point
+inlier = np.array([4, 4])
+
+# Insert into tree
+tree.insert_point(outlier, index='outlier')
+
 tree.codisp('outlier')
 >>> 39.0
 ```
+
+```python
+# Delete point to remove from model
+tree.forget_point('outlier')
+```
+
+### Control tree random seed
+
+Even with same data, a tree (also a forest) generated from `rrcf.RCTree()` is subject to `np.random` and might change for every run (resulting in different tree shape and anomaly score). To maintain reproducibility, use `numpy.random.seed()`:
+
+```python
+# Before making a tree or a forest
+seed_number = 42 # your_number
+np.random.seed(seed_number)
+tree = rrcf.RCTree(X)
+```
+
+WARNING: Don't use `numpy.random.seed()` inside loop while making `tree` or all of the `tree` will be identical.
 
 ## Batch anomaly detection
 
@@ -145,18 +173,18 @@ import numpy as np
 import pandas as pd
 import rrcf
 
-# Set parameters
-np.random.seed(0)
+# Generate data
 n = 2010
 d = 3
-num_trees = 100
-tree_size = 256
-
-# Generate data
 X = np.zeros((n, d))
 X[:1000,0] = 5
 X[1000:2000,0] = -5
 X += 0.01*np.random.randn(*X.shape)
+
+# Set forest parameters
+np.random.seed(42)
+num_trees = 100
+tree_size = 256
 
 # Construct forest
 forest = []
@@ -199,16 +227,17 @@ sin = A*np.sin(T*t-phi*T) + center
 sin[235:255] = 80
 
 # Set tree parameters
+np.random.seed(42)
 num_trees = 40
 shingle_size = 4
 tree_size = 256
 
 # Create a forest of empty trees
-forest = []
-for _ in range(num_trees):
+forest = [None] * num_trees
+for idx in range(num_trees):
     tree = rrcf.RCTree()
-    forest.append(tree)
-    
+    forest[idx] = tree
+
 # Use the "shingle" generator to create rolling window
 points = rrcf.shingle(sin, size=shingle_size)
 
@@ -219,8 +248,8 @@ avg_codisp = {}
 for index, point in enumerate(points):
     # For each tree in the forest...
     for tree in forest:
-        # If tree is above permitted size, drop the oldest point (FIFO)
-        if len(tree.leaves) > tree_size:
+        # If tree is already full, drop the oldest point (FIFO)
+        if len(tree.leaves) = tree_size:
             tree.forget_point(index - tree_size)
         # Insert the new point into the tree
         tree.insert_point(point, index=index)
@@ -258,13 +287,13 @@ Please consider the following guidelines when contributing to the codebase:
 
 To run unit tests, first ensure that `pytest` and `pytest-cov` are installed:
 
-```
+```shell
 $ pip install pytest pytest-cov
 ```
 
 To run the tests, navigate to the root directory of the repo and run:
 
-```
+```shell
 $ pytest --cov=rrcf/
 ```
 
