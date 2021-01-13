@@ -1,4 +1,5 @@
 # rrcf 🌲🌲🌲
+
 [![Build Status](https://travis-ci.org/kLabUM/rrcf.svg?branch=master)](https://travis-ci.org/kLabUM/rrcf) [![Coverage Status](https://coveralls.io/repos/github/kLabUM/rrcf/badge.svg?branch=master)](https://coveralls.io/github/kLabUM/rrcf?branch=master) [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/) ![GitHub](https://img.shields.io/github/license/kLabUM/rrcf.svg) [![status](http://joss.theoj.org/papers/f8c83c0b01a984d0dbf934939b53c96d/status.svg)](http://joss.theoj.org/papers/f8c83c0b01a984d0dbf934939b53c96d)
 
 Implementation of the *Robust Random Cut Forest Algorithm* for anomaly detection by [Guha et al. (2016)](http://proceedings.mlr.press/v48/guha16.pdf).
@@ -76,7 +77,7 @@ for i in range(6):
     tree.insert_point(x, index=i)
 ```
 
-```
+```python
 ─+
  ├───+
  │   ├───+
@@ -92,11 +93,11 @@ for i in range(6):
 
 ### Deleting points
 
-```
+```python
 tree.forget_point(2)
 ```
 
-```
+```python
 ─+
  ├───+
  │   ├───+
@@ -208,7 +209,7 @@ forest = []
 for _ in range(num_trees):
     tree = rrcf.RCTree()
     forest.append(tree)
-    
+
 # Use the "shingle" generator to create rolling window
 points = rrcf.shingle(sin, size=shingle_size)
 
@@ -258,13 +259,13 @@ Please consider the following guidelines when contributing to the codebase:
 
 To run unit tests, first ensure that `pytest` and `pytest-cov` are installed:
 
-```
+```shell
 $ pip install pytest pytest-cov
 ```
 
 To run the tests, navigate to the root directory of the repo and run:
 
-```
+```shell
 $ pytest --cov=rrcf/
 ```
 
