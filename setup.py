@@ -14,3 +14,5 @@ setup(name='rrcf',
           'numpy'
       ]
       )
+
+print("Hello World")
