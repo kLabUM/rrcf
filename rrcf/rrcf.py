@@ -95,14 +95,14 @@ class RCTree:
                 X = U
             else:
                 n, d = X.shape
-                N = np.ones(n, dtype=np.int)
+                N = np.ones(n, dtype=int)
                 I = None
             # Store dimension of dataset
             self.ndim = d
             # Set node above to None in case of bottom-up search
             self.u = None
             # Create RRC Tree
-            S = np.ones(n, dtype=np.bool)
+            S = np.ones(n, dtype=bool)
             self._mktree(X, S, N, I, parent=self)
             # Remove parent of root
             self.root.u = None
@@ -177,7 +177,7 @@ class RCTree:
         # Otherwise...
         else:
             # Create a leaf node from isolated point
-            i = np.asscalar(np.flatnonzero(S1))
+            i = np.flatnonzero(S1).item()
             leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :], n=N[i])
             # Link leaf node to parent
             branch.l = leaf
@@ -199,7 +199,7 @@ class RCTree:
         # Otherwise...
         else:
             # Create a leaf node from isolated point
-            i = np.asscalar(np.flatnonzero(S2))
+            i = np.flatnonzero(S2).item()
             leaf = Leaf(i=i, d=depth, u=branch, x=X[i, :], n=N[i])
             # Link leaf node to parent
             branch.r = leaf
@@ -937,7 +937,7 @@ class RCTree:
         """
         num_leaves = np.array(0, dtype=np.int64)
         self.map_leaves(node, op=self._accumulate, accumulator=num_leaves)
-        num_leaves = np.asscalar(num_leaves)
+        num_leaves = num_leaves.item()
         return num_leaves
 
     def _query(self, point, node):
