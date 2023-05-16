@@ -659,7 +659,7 @@ class RCTree:
         >>> tree.insert_point(new_point, index=100)
 
         # Compute collusive displacement with dimension 
-        >>> tree.codisp_with_dim(100)
+        >>> tree.codisp_with_cut_dimension(100)
         
         (31.667, 1)
         """
