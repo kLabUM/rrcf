@@ -232,6 +232,62 @@ for index, point in enumerate(points):
 
 ![Image](https://github.com/kLabUM/rrcf/blob/master/resources/sine.png)
 
+## Obtain feature importance
+
+This example shows how to estimate the feature importance using the dimension of cut obtained during the calculation of the CoDisp.
+
+
+```python
+import numpy as np
+import pandas as pd
+import rrcf
+
+# Set parameters
+np.random.seed(0)
+n = 2010
+d = 3
+num_trees = 100
+tree_size = 256
+
+# Generate data
+X = np.zeros((n, d))
+X[:1000,0] = 5
+X[1000:2000,0] = -5
+X += 0.01*np.random.randn(*X.shape)
+
+# Construct forest
+forest = []
+while len(forest) < num_trees:
+    # Select random subsets of points uniformly from point set
+    ixs = np.random.choice(n, size=(n // tree_size, tree_size),
+                           replace=False)
+    # Add sampled trees to forest
+    trees = [rrcf.RCTree(X[ix], index_labels=ix) for ix in ixs]
+    forest.extend(trees)
+
+
+# Compute average CoDisp with the cut dimension for each point
+dim_codisp = np.zeros([n,d],dtype=float)
+index = np.zeros(n)
+for tree in forest:
+    for leaf in tree.leaves:
+        codisp,cutdim = tree.codisp_with_cut_dimension(leaf)
+        
+        dim_codisp[leaf,cutdim] += codisp 
+
+        index[leaf] += 1
+
+avg_codisp = dim_codisp.sum(axis=1)/index
+
+#codisp anomaly threshold and calculate the mean over each feature
+feature_importance_anomaly = np.mean(dim_codisp[avg_codisp>50,:],axis=0)
+#create a dataframe with the feature importance
+df_feature_importance = pd.DataFrame(feature_importance_anomaly,columns=['feature_importance'])
+df_feature_importance
+```
+
+
+
 ## Contributing
 
 We welcome contributions to the `rrcf` repo. To contribute, submit a [pull request](https://help.github.com/en/articles/about-pull-requests) to the `dev` branch.
