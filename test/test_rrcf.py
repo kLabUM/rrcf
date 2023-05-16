@@ -36,6 +36,13 @@ def test_codisp():
         codisp = tree.codisp(i)
         assert codisp > 0
 
+def test_codisp_with_cut_dimension():
+    for i in range(100):
+        codisp,cut_dim = tree.codisp_with_cut_dimension(i)
+        assert codisp > 0
+        assert cut_dim >= 0 and cut_dim < d
+        
+
 def test_disp():
     for i in range(100):
         disp = tree.disp(i)
