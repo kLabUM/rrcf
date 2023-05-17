@@ -285,6 +285,7 @@ feature_importance_anomaly = np.mean(dim_codisp[avg_codisp>50,:],axis=0)
 df_feature_importance = pd.DataFrame(feature_importance_anomaly,columns=['feature_importance'])
 df_feature_importance
 ```
+![Image](https://raw.githubusercontent.com/kLabUM/rrcf/master/feature_importance.png)
 
 
 
