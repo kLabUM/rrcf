@@ -690,7 +690,7 @@ class RCTree:
             results.append(result)
             cut_dimensions.append(parent.q)
             node = parent
-            argmax = np.argmax(results)
+        argmax = np.argmax(results)
         
         return results[argmax], cut_dimensions[argmax]
 
