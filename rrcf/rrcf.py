@@ -633,6 +633,67 @@ class RCTree:
         co_displacement = max(results)
         return co_displacement
 
+
+    def codisp_with_cut_dimension(self, leaf):
+        """
+        Compute collusive displacement at leaf and the dimension of the cut.
+        This method can be used to find the most importance fetures that determined the CoDisp.
+
+        Parameters:
+        -----------
+        leaf: index of leaf or Leaf instance
+
+        Returns:
+        --------
+        codisplacement: float
+                        Collusive displacement if leaf is removed.
+        cut_dimension: int
+                    Dimension of the cut
+
+        Example:
+        --------
+        # Create RCTree
+        >>> X = np.random.randn(100, 2)
+        >>> tree = rrcf.RCTree(X)
+        >>> new_point = np.array([4, 4])
+        >>> tree.insert_point(new_point, index=100)
+
+        # Compute collusive displacement with dimension 
+        >>> tree.codisp_with_cut_dimension(100)
+        
+        (31.667, 1)
+        """
+        if not isinstance(leaf, Leaf):
+            try:
+                leaf = self.leaves[leaf]
+            except KeyError:
+                raise KeyError(
+                    'leaf must be a Leaf instance or key to self.leaves')
+        # Handle case where leaf is root
+        if leaf is self.root:
+            return 0
+        node = leaf
+        results = []
+        cut_dimensions = []
+
+        for _ in range(node.d):
+            parent = node.u
+            if parent is None:
+                break
+            if node is parent.l:
+                sibling = parent.r
+            else:
+                sibling = parent.l
+            num_deleted = node.n
+            displacement = sibling.n
+            result = (displacement / num_deleted)
+            results.append(result)
+            cut_dimensions.append(parent.q)
+            node = parent
+        argmax = np.argmax(results)
+        
+        return results[argmax], cut_dimensions[argmax]
+
     def get_bbox(self, branch=None):
         """
         Compute bounding box of all points underneath a given branch.
