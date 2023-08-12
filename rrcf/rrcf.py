@@ -1101,7 +1101,7 @@ class RCTree:
         (0, 0.9758881798109296)
         """
         # Generate the bounding box
-        bbox_hat = np.empty(bbox.shape)
+        bbox_hat = np.empty((2, bbox.shape[1]))
         # Update the bounding box based on the internal point
         bbox_hat[0, :] = np.minimum(bbox[0, :], point)
         bbox_hat[-1, :] = np.maximum(bbox[-1, :], point)
