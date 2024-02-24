@@ -616,7 +616,7 @@ class RCTree:
         if leaf is self.root:
             return 0
         node = leaf
-        results = []
+        co_displacement = 0
         for _ in range(node.d):
             parent = node.u
             if parent is None:
@@ -627,10 +627,8 @@ class RCTree:
                 sibling = parent.l
             num_deleted = node.n
             displacement = sibling.n
-            result = (displacement / num_deleted)
-            results.append(result)
+            co_displacement = max(co_displacement, displacement / num_deleted)
             node = parent
-        co_displacement = max(results)
         return co_displacement
 
 
